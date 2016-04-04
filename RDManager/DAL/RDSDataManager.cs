@@ -17,6 +17,24 @@ namespace RDManager.DAL
         }
 
         /// <summary>
+        /// 移除指定的组或服务器
+        /// </summary>
+        /// <param name="id"></param>
+        public void Remove(Guid id)
+        {
+            XDocument doc = GetData();
+            var root = doc.Element("rds");
+
+            var elelment = root.Descendants().Where(d => d.Attribute("id").Value == id.ToString()).FirstOrDefault();
+            if (elelment != null)
+            {
+                elelment.Remove();
+            }
+
+            doc.Save(dataPath);
+        }
+
+        /// <summary>
         /// 添加分组
         /// </summary>
         /// <param name="model"></param>
@@ -28,6 +46,8 @@ namespace RDManager.DAL
             var groupElement = new XElement("group");
             groupElement.SetAttributeValue("id", model.GroupID);
             groupElement.SetAttributeValue("name", model.GroupName);
+
+            // TODO:检查重名
 
             if (model.ParentGroupID == Guid.Empty)
             {

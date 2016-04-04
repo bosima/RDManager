@@ -52,8 +52,8 @@ namespace RDManager
         /// <summary>
         /// 更换当前Panel
         /// </summary>
-        /// <param name="server"></param>
-        private void ChangeCurrentRDPanel(RDSServer server)
+        /// <param name="node"></param>
+        private void ChangeCurrentRDPanel(RDSDataNode node)
         {
             // 移除当前Panel
             if (currentRDPanel != null)
@@ -62,17 +62,18 @@ namespace RDManager
             }
 
             Panel rdPanel = null;
+            var panelID = "panel_" + node.Tag.ToString();
 
             // 如果Panel已经存在，直接加载Panel，否则创建新的Panel
-            if (rdPanelDictionary.ContainsKey(server.ServerAddress))
+            if (rdPanelDictionary.ContainsKey(panelID))
             {
-                rdPanel = rdPanelDictionary[server.ServerAddress];
+                rdPanel = rdPanelDictionary[panelID];
             }
             else {
                 rdPanel = new Panel();
                 rdPanel.Dock = System.Windows.Forms.DockStyle.Fill;
                 rdPanel.Location = new System.Drawing.Point(0, 0);
-                rdPanel.Name = server.ServerAddress;
+                rdPanel.Name = panelID;
                 rdPanel.TabIndex = 0;
             }
 
@@ -90,9 +91,10 @@ namespace RDManager
         /// 连接远程桌面
         /// </summary>
         /// <param name="server"></param>
-        private void ConnectRemoteDesktop(RDSServer server)
+        /// <param name="connectedAction"></param>
+        private void ConnectRemoteDesktop(RDSDataNode node)
         {
-            ChangeCurrentRDPanel(server);
+            ChangeCurrentRDPanel(node);
 
             AxMSTSCLib.AxMsRdpClient9NotSafeForScripting rdp = null;
 
@@ -111,6 +113,8 @@ namespace RDManager
             // 如果远程桌面控件不存在，则创建
             if (rdp == null)
             {
+                var server = (RDSServer)node.RDSData;
+
                 rdp = new AxMSTSCLib.AxMsRdpClient9NotSafeForScripting();
                 rdp.Width = this.splitContainer1.Panel2.Width;
                 rdp.Height = this.splitContainer1.Panel2.Height;
@@ -118,6 +122,8 @@ namespace RDManager
 
                 currentRDPanel.Controls.Add(rdp);
 
+                rdp.Tag = node;
+                rdp.Name = "rdp_" + server.ServerID.ToString();
                 rdp.Server = server.ServerAddress;
                 rdp.UserName = server.UserName;
                 rdp.CausesValidation = false;
@@ -128,19 +134,50 @@ namespace RDManager
                 rdp.ColorDepth = 32;
                 rdp.ConnectingText = "正在连接";
                 rdp.DisconnectedText = "连接已断开";
+                rdp.OnConnected += Rdp_OnConnected;
+                rdp.OnDisconnected += Rdp_OnDisconnected;
                 rdp.Connect();
             }
+        }
+
+        /// <summary>
+        /// 远程桌面连接断开事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Rdp_OnDisconnected(object sender, AxMSTSCLib.IMsTscAxEvents_OnDisconnectedEvent e)
+        {
+            var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)sender;
+            var node = (RDSDataNode)rdp.Tag;
+
+            node.ImageIndex = 1;
+            node.SelectedImageIndex = 1;
+        }
+
+        /// <summary>
+        /// 远程桌面连接成功事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Rdp_OnConnected(object sender, EventArgs e)
+        {
+            var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)sender;
+            var node = (RDSDataNode)rdp.Tag;
+
+            node.ImageIndex = 2;
+            node.SelectedImageIndex = 2;
         }
 
         /// <summary>
         /// 断开远程桌面连接
         /// </summary>
         /// <param name="server"></param>
-        private void DisConRemoteDesktop(RDSServer server)
+        private void DisConRemoteDesktop(RDSDataNode node)
         {
-            if (rdPanelDictionary.ContainsKey(server.ServerAddress))
+            var panelName = "panel_" + node.Name.Replace("node_", "");
+            if (rdPanelDictionary.ContainsKey(panelName))
             {
-                var disConRDanel = rdPanelDictionary[server.ServerAddress];
+                var disConRDanel = rdPanelDictionary[panelName];
                 var disConRD = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)disConRDanel.Controls[0];
                 disConRD.Disconnect();
             }
@@ -159,11 +196,15 @@ namespace RDManager
             rootNode.Tag = Guid.Empty;
             rootNode.NodeType = RDSDataNodeType.Group;
             rootNode.ContextMenuStrip = rightButtonMenu;
+            rootNode.ImageIndex = 0;
 
             InitTreeNodes(root, rootNode);
 
             serverTree.Nodes.Add(rootNode);
+            serverTree.ImageList = imageList1;
+
             rootNode.Expand();
+
             currentTreeNode = rootNode;
         }
 
@@ -174,14 +215,18 @@ namespace RDManager
                 if (element.Name == "group")
                 {
                     RDSDataNode item = MakeGroupTreeNode(parentNode, element);
+                    item.ImageIndex = 0;
+                    item.SelectedImageIndex = 0;
 
                     parentNode.Nodes.Add(item);
                     InitTreeNodes(element, item);
                 }
                 else
                 {
-                    // TODO:给节点增加一个连接状态图标
                     RDSDataNode item = MakeServerTreeNode(parentNode, element);
+                    item.ImageIndex = 1;
+                    item.SelectedImageIndex = 1;
+
                     parentNode.Nodes.Add(item);
                 }
             }
@@ -197,6 +242,7 @@ namespace RDManager
             string password = element.Attribute("password").Value;
 
             RDSDataNode item = new RDSDataNode();
+            item.Name = "node_" + id;
             item.Text = name;
             item.Tag = id;
             item.ContextMenuStrip = rightButtonMenu;
@@ -221,6 +267,7 @@ namespace RDManager
             string name = element.Attribute("name").Value;
 
             RDSDataNode item = new RDSDataNode();
+            item.Name = "node_" + id;
             item.Text = name;
             item.Tag = id;
             item.ContextMenuStrip = rightButtonMenu;
@@ -253,8 +300,7 @@ namespace RDManager
 
                 if (isDoConnect)
                 {
-                    RDSServer server = (RDSServer)node.RDSData;
-                    ConnectRemoteDesktop(server);
+                    ConnectRemoteDesktop(node);
                 }
             }
         }
@@ -286,7 +332,10 @@ namespace RDManager
 
             // TODO:添加一个全屏按钮
 
-            // TODO:添加一个编辑按钮
+            ToolStripMenuItem btnEditServerItem = new ToolStripMenuItem();
+            btnEditServerItem.Name = "btnEditServerItem";
+            btnEditServerItem.Text = "编辑";
+            btnEditServerItem.Click += Edit_Click;
 
             ToolStripMenuItem btnDeleteServerItem = new ToolStripMenuItem();
             btnDeleteServerItem.Name = "btnDeleteServerItem";
@@ -298,6 +347,7 @@ namespace RDManager
             rightButtonMenu.Items.Add(btnAddServerItem);
             rightButtonMenu.Items.Add(btnConnectServerItem);
             rightButtonMenu.Items.Add(btnDisconServerItem);
+            rightButtonMenu.Items.Add(btnEditServerItem);
             rightButtonMenu.Items.Add(btnDeleteServerItem);
         }
 
@@ -310,8 +360,10 @@ namespace RDManager
                 if (treeNode != null)
                 {
                     var node = (RDSDataNode)treeNode;
-                    RDSServer server = (RDSServer)node.RDSData;
-                    ChangeCurrentRDPanel(server);
+                    if (node.NodeType == RDSDataNodeType.Server)
+                    {
+                        ChangeCurrentRDPanel(node);
+                    }
                 }
             }
 
@@ -321,7 +373,7 @@ namespace RDManager
                 var treeNode = e.Node;
                 if (treeNode != null)
                 {
-                    treeNode.Checked = true;
+                    serverTree.SelectedNode = serverTree.GetNodeAt(e.X, e.Y);
 
                     var node = (RDSDataNode)treeNode;
                     currentTreeNode = node;
@@ -344,9 +396,63 @@ namespace RDManager
 
         private void Delete_Click(object sender, EventArgs e)
         {
-            // TODO:删除节点及下级节点
+            var nodeID = (Guid)currentTreeNode.Tag;
 
-            MessageBox.Show("暂未实现");
+            if (nodeID != Guid.Empty)
+            {
+                // 数据中移除
+                RDSDataManager dataManager = new RDSDataManager();
+                dataManager.Remove(nodeID);
+
+                // 树形菜单中移除
+                currentTreeNode.Remove();
+
+                // Panel移除
+                var panelID = "panel_" + nodeID;
+                if (rdPanelDictionary.ContainsKey(panelID))
+                {
+                    rdPanelDictionary.Remove(panelID);
+                }
+            }
+        }
+
+        private void Edit_Click(object sender, EventArgs e)
+        {
+            if (currentTreeNode == null)
+            {
+                return;
+            }
+
+            if (currentTreeNode.NodeType == RDSDataNodeType.Group)
+            {
+                var rdsData = (RDSGroup)currentTreeNode.RDSData;
+
+                GroupEditForm groupEditWindow = new GroupEditForm();
+                groupEditWindow.Model = rdsData;
+                var result = groupEditWindow.ShowDialog();
+                var model = groupEditWindow.Model.Clone();
+
+                if (result == DialogResult.OK)
+                {
+                    currentTreeNode.Text = model.GroupName;
+                    currentTreeNode.RDSData = model;
+                }
+            }
+            else
+            {
+                var rdsData = (RDSServer)currentTreeNode.RDSData;
+
+                ServerEditForm serverEditWindow = new ServerEditForm();
+                serverEditWindow.Model = rdsData;
+                var result = serverEditWindow.ShowDialog();
+                var model = serverEditWindow.Model.Clone();
+
+                if (result == DialogResult.OK)
+                {
+                    currentTreeNode.Text = model.ServerName;
+                    currentTreeNode.RDSData = model;
+                }
+            }
         }
 
         private void AddGroup_Click(object sender, EventArgs e)
@@ -360,16 +466,18 @@ namespace RDManager
             {
                 var newNode = new RDSDataNode()
                 {
+                    Name = "node_" + model.GroupID,
                     Text = model.GroupName,
                     Tag = model.GroupID,
                     RDSData = model,
                     ContextMenuStrip = rightButtonMenu,
-                    NodeType = RDSDataNodeType.Group
+                    NodeType = RDSDataNodeType.Group,
+                    ImageIndex = 0,
+                    SelectedImageIndex = 0
                 };
 
-                var selectNode = (RDSDataNode)serverTree.SelectedNode;
-                selectNode.Nodes.Add(newNode);
-                selectNode.Expand();
+                currentTreeNode.Nodes.Add(newNode);
+                currentTreeNode.Expand();
             }
         }
 
@@ -384,16 +492,18 @@ namespace RDManager
             {
                 var newNode = new RDSDataNode()
                 {
+                    Name = "node_" + model.ServerID,
                     Text = model.ServerName,
                     Tag = model.ServerID,
                     RDSData = model,
                     ContextMenuStrip = rightButtonMenu,
-                    NodeType = RDSDataNodeType.Server
+                    NodeType = RDSDataNodeType.Server,
+                    ImageIndex = 1,
+                    SelectedImageIndex = 1
                 };
 
-                var selectNode = (RDSDataNode)serverTree.SelectedNode;
-                selectNode.Nodes.Add(newNode);
-                selectNode.Expand();
+                currentTreeNode.Nodes.Add(newNode);
+                currentTreeNode.Expand();
             }
         }
 
@@ -403,11 +513,8 @@ namespace RDManager
             {
                 if (currentTreeNode.NodeType == RDSDataNodeType.Server)
                 {
-                    RDSServer server = (RDSServer)currentTreeNode.RDSData;
-                    ConnectRemoteDesktop(server);
+                    ConnectRemoteDesktop(currentTreeNode);
                 }
-
-                // TODO:设置节点选中状态
             }
         }
 
@@ -417,8 +524,7 @@ namespace RDManager
             {
                 if (currentTreeNode.NodeType == RDSDataNodeType.Server)
                 {
-                    RDSServer server = (RDSServer)currentTreeNode.RDSData;
-                    DisConRemoteDesktop(server);
+                    DisConRemoteDesktop(currentTreeNode);
                 }
             }
         }

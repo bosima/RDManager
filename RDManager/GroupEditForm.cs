@@ -13,25 +13,39 @@ namespace RDManager
 {
     public partial class GroupEditForm : Form
     {
+        private RDSGroup model;
+
         public GroupEditForm()
         {
             InitializeComponent();
 
-            if (Model == null)
+            if (model == null)
             {
-                Model = new RDSGroup();
+                model = new RDSGroup();
             }
         }
 
         public RDSGroup Model
         {
-            get;
-            set;
+            get
+            {
+                return model;
+            }
+
+            set
+            {
+                model = value;
+
+                if (value != null)
+                {
+                    txtGroupName.Text = model.GroupName;
+                }
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Model.GroupID = Guid.NewGuid();
+            Model.GroupID = Model.GroupID == Guid.Empty ? Guid.NewGuid() : Model.GroupID;
             Model.GroupName = txtGroupName.Text;
 
             if (string.IsNullOrWhiteSpace(Model.GroupName))

@@ -13,17 +13,38 @@ namespace RDManager
 {
     public partial class ServerEditForm : Form
     {
+        private RDSServer model;
+
         public ServerEditForm()
         {
             InitializeComponent();
 
-            if (Model == null)
+            if (model == null)
             {
-                Model = new RDSServer();
+                model = new RDSServer();
             }
         }
 
-        public RDSServer Model { get; set; }
+        public RDSServer Model
+        {
+            get
+            {
+                return model;
+            }
+
+            set
+            {
+                model = value;
+
+                if (value != null)
+                {
+                    txtServerName.Text = Model.ServerName;
+                    txtServerAddress.Text = Model.ServerAddress;
+                    txtUserName.Text = Model.UserName;
+                    txtPassword.Text = Model.Password;
+                }
+            }
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
