@@ -8,6 +8,5 @@ Just another windows remote desktop manager.
 因此，有了这个新的远程桌面管理工具。
 
 参考网上公开的资料，完全按照自己的需求开发，没有多余的东西。
-
 如果你喜欢也可以拿去改，保留许可证及作者信息即可。
 
