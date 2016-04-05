@@ -47,8 +47,6 @@ namespace RDManager.DAL
             groupElement.SetAttributeValue("id", model.GroupID);
             groupElement.SetAttributeValue("name", model.GroupName);
 
-            // TODO:检查重名
-
             if (model.ParentGroupID == Guid.Empty)
             {
                 root.Add(groupElement);
@@ -61,7 +59,16 @@ namespace RDManager.DAL
                     throw new ArgumentException("上级分组不存在！");
                 }
 
-                parentGroup.Add(groupElement);
+                var docElelment = parentGroup.Descendants("group").Where(d => d.Attribute("id").Value == model.GroupID.ToString()).FirstOrDefault();
+                if (docElelment == null)
+                {
+                    parentGroup.Add(groupElement);
+                }
+                else
+                {
+                    docElelment.SetAttributeValue("id", model.GroupID);
+                    docElelment.SetAttributeValue("name", model.GroupName);
+                }
             }
 
             doc.Save(dataPath);
@@ -96,7 +103,20 @@ namespace RDManager.DAL
                     throw new ArgumentException("分组不存在！");
                 }
 
-                parentGroup.Add(element);
+                var docElelment = parentGroup.Descendants("server").Where(d => d.Attribute("id").Value == model.ServerID.ToString()).FirstOrDefault();
+                if (docElelment == null)
+                {
+                    parentGroup.Add(element);
+                }
+                else
+                {
+                    docElelment.SetAttributeValue("id", model.ServerID);
+                    docElelment.SetAttributeValue("name", model.ServerName);
+                    docElelment.SetAttributeValue("address", model.ServerAddress);
+                    docElelment.SetAttributeValue("port", model.ServerPort);
+                    docElelment.SetAttributeValue("username", model.UserName);
+                    docElelment.SetAttributeValue("password", model.Password);
+                }
             }
 
             doc.Save(dataPath);

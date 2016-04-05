@@ -48,7 +48,7 @@ namespace RDManager
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Model.ServerID = Guid.NewGuid();
+            Model.ServerID = Model.ServerID == Guid.Empty ? Guid.NewGuid() : Model.ServerID;
             Model.ServerName = txtServerName.Text.Trim();
             Model.ServerAddress = txtServerAddress.Text.Trim();
             Model.UserName = txtUserName.Text.Trim();
