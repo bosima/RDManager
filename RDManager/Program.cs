@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RDManager.DAL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -15,7 +16,19 @@ namespace RDManager
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+
+            RDSDataManager dataManager = new RDSDataManager();
+            var secKey = dataManager.GetSecrectKey();
+            var initTime = dataManager.GetInitTime();
+
+            if (string.IsNullOrWhiteSpace(secKey) || string.IsNullOrWhiteSpace(initTime))
+            {
+                Application.Run(new InitForm());
+            }
+            else
+            {
+                Application.Run(new LoginForm());
+            }
         }
     }
 }

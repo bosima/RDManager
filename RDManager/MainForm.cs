@@ -28,6 +28,8 @@ namespace RDManager
         {
             base.OnLoad(e);
 
+            InitUser();
+
             InitForm();
 
             InitRightButtonMemnu();
@@ -35,6 +37,11 @@ namespace RDManager
             InitTreeView();
 
             InitRemoteDesktop();
+        }
+
+        private void InitUser()
+        {
+
         }
 
         private void InitForm()
@@ -221,7 +228,7 @@ namespace RDManager
                     parentNode.Nodes.Add(item);
                     InitTreeNodes(element, item);
                 }
-                else
+                else if (element.Name == "server")
                 {
                     RDSDataNode item = MakeServerTreeNode(parentNode, element);
                     item.ImageIndex = 1;

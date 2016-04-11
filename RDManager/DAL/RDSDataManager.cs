@@ -17,6 +17,104 @@ namespace RDManager.DAL
         }
 
         /// <summary>
+        /// 获取加密密钥
+        /// </summary>
+        /// <returns></returns>
+        public string GetSecrectKey()
+        {
+            XDocument doc = GetData();
+            var root = doc.Element("rds");
+
+            var secKey = root.Descendants("seckey").FirstOrDefault();
+            if (secKey == null)
+            {
+                return string.Empty;
+            }
+
+            return secKey.Value;
+        }
+
+        public string GetInitTime()
+        {
+            XDocument doc = GetData();
+            var root = doc.Element("rds");
+
+            var initTime = root.Descendants("inittm").FirstOrDefault();
+            if (initTime == null)
+            {
+                return string.Empty;
+            }
+
+            return initTime.Value;
+        }
+
+        public string GetPassword()
+        {
+            XDocument doc = GetData();
+            var root = doc.Element("rds");
+
+            var passElement = root.Descendants("pass").FirstOrDefault();
+            if (passElement == null)
+            {
+                return string.Empty;
+            }
+
+            return passElement.Value;
+        }
+
+        /// <summary>
+        /// 设置加密密钥
+        /// </summary>
+        /// <returns></returns>
+        public void SetSecrectKey(string secKey)
+        {
+            XDocument doc = GetData();
+            var root = doc.Element("rds");
+
+            var secKeyElement = root.Descendants("seckey").FirstOrDefault();
+            if (secKeyElement == null)
+            {
+                secKeyElement = new XElement("seckey");
+                secKeyElement.Value = secKey;
+                root.Add(secKeyElement);
+
+                doc.Save(dataPath);
+            }
+        }
+
+        public void SetInitTime(string time)
+        {
+            XDocument doc = GetData();
+            var root = doc.Element("rds");
+
+            var initTimeElement = root.Descendants("inittm").FirstOrDefault();
+            if (initTimeElement == null)
+            {
+                initTimeElement = new XElement("inittm");
+                initTimeElement.Value = time;
+                root.Add(initTimeElement);
+
+                doc.Save(dataPath);
+            }
+        }
+
+        public void SetPassword(string password)
+        {
+            XDocument doc = GetData();
+            var root = doc.Element("rds");
+
+            var passElement = root.Descendants("pass").FirstOrDefault();
+            if (passElement == null)
+            {
+                passElement = new XElement("pass");
+                passElement.Value = password;
+                root.Add(passElement);
+
+                doc.Save(dataPath);
+            }
+        }
+
+        /// <summary>
         /// 移除指定的组或服务器
         /// </summary>
         /// <param name="id"></param>
