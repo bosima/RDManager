@@ -123,7 +123,7 @@ namespace RDManager.DAL
             XDocument doc = GetData();
             var root = doc.Element("rds");
 
-            var elelment = root.Descendants().Where(d => d.Attribute("id").Value == id.ToString()).FirstOrDefault();
+            var elelment = root.Descendants().Where(d => d.Attribute("id") != null).Where(d => d.Attribute("id").Value == id.ToString()).FirstOrDefault();
             if (elelment != null)
             {
                 elelment.Remove();

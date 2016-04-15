@@ -133,6 +133,7 @@
     <Content Include="packages\MSTSCLib.dll" />
     <Content Include="rds.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

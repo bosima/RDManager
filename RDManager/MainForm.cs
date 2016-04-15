@@ -136,7 +136,7 @@ namespace RDManager
                 rdp.CausesValidation = false;
                 rdp.AdvancedSettings9.EnableCredSspSupport = true;
                 rdp.AdvancedSettings9.RDPPort = server.ServerPort;
-                rdp.AdvancedSettings9.ClearTextPassword = server.Password;
+                rdp.AdvancedSettings9.ClearTextPassword = EncryptUtils.DecryptPassword(server.Password);
                 rdp.AdvancedSettings9.BandwidthDetection = true;
                 rdp.ColorDepth = 32;
                 rdp.ConnectingText = "正在连接";

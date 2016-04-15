@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RDManager.DAL;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -207,6 +208,38 @@ namespace RDManager
             return result;
         }
 
+        #endregion
+
+        #region 服务器账号加密
+        public static string EncryptPassword(string clearPassword)
+        {
+            var secrectKey = GetSecrectKey();
+            return DES3Encrypt(clearPassword, secrectKey);
+        }
+
+        public static string DecryptPassword(string encryPassword)
+        {
+            var secrectKey = GetSecrectKey();
+            return DES3Decrypt(encryPassword, secrectKey);
+        }
+
+        private static string GetSecrectKey()
+        {
+            RDSDataManager manager = new RDSDataManager();
+            var initTimeString = manager.GetInitTime();
+            var startChar = initTimeString[0];
+            var middleChar = initTimeString[(initTimeString.Length - 1) / 2];
+            if (startChar < middleChar)
+            {
+                startChar = middleChar;
+            }
+
+            var startIndex = int.Parse(startChar.ToString());
+            startIndex = startIndex == 9 ? 8 : startIndex;
+            var secrectKey = manager.GetSecrectKey();
+            var secrectPassword = manager.GetPassword();
+            return secrectKey.Substring(startIndex, 24);
+        }
         #endregion
     }
 }
