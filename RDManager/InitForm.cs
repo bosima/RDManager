@@ -33,23 +33,16 @@ namespace RDManager
             DateTime now = DateTime.Now;
             var initTime = now.Ticks - openTime.Ticks;
             var initTimeString = initTime.ToString();
-            var startChar = initTimeString[0];
-            var middleChar = initTimeString[(initTimeString.Length - 1) / 2];
-            if (startChar < middleChar)
-            {
-                startChar = middleChar;
-            }
 
-            var startIndex = int.Parse(startChar.ToString());
-            startIndex = startIndex == 9 ? 8 : startIndex;
             secrectKey = EncryptUtils.MD5Encrypt(secrectKey);
-            var passSecrectKey = secrectKey.Substring(startIndex, 24);
+            var passSecrectKey = EncryptUtils.GetSecrectKey(initTimeString, secrectKey);
             var encryptPassword = EncryptUtils.DES3Encrypt(password, passSecrectKey);
 
             RDSDataManager manager = new RDSDataManager();
             manager.SetSecrectKey(secrectKey);
             manager.SetInitTime(initTimeString);
             manager.SetPassword(encryptPassword);
+            manager.EncryptServer();
 
             this.Hide();
             LoginForm loginForm = new LoginForm();

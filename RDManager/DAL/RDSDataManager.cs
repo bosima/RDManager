@@ -114,6 +114,28 @@ namespace RDManager.DAL
             }
         }
 
+        public void EncryptServer()
+        {
+            XDocument doc = GetData();
+            var root = doc.Element("rds");
+
+            var servers = root.Descendants("server");
+            if (servers.Any())
+            {
+                foreach (var server in servers)
+                {
+                    var address = server.Attribute("address");
+                    var password = server.Attribute("password");
+                    if (address != null && password != null && !string.IsNullOrWhiteSpace(password.Value))
+                    {
+                        password.Value = EncryptUtils.EncryptServerPassword(address.Value, password.Value);
+                    }
+                }
+
+                doc.Save(dataPath);
+            }
+        }
+
         /// <summary>
         /// 移除指定的组或服务器
         /// </summary>

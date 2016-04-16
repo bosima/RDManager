@@ -26,21 +26,8 @@ namespace RDManager
         {
             string password = txtPassword.Text.Trim();
 
-            RDSDataManager manager = new RDSDataManager();
-            var initTimeString = manager.GetInitTime();
-            var startChar = initTimeString[0];
-            var middleChar = initTimeString[(initTimeString.Length - 1) / 2];
-            if (startChar < middleChar)
-            {
-                startChar = middleChar;
-            }
-
-            var startIndex = int.Parse(startChar.ToString());
-            startIndex = startIndex == 9 ? 8 : startIndex;
-            var secrectKey = manager.GetSecrectKey();
-            var secrectPassword = manager.GetPassword();
-            var passSecrectKey = secrectKey.Substring(startIndex, 24);
-            var encryptPassword = EncryptUtils.DES3Encrypt(password, passSecrectKey);
+            var secrectPassword = new RDSDataManager().GetPassword();
+            var encryptPassword = EncryptUtils.EncryptPassword(password);
 
             if (encryptPassword != secrectPassword)
             {

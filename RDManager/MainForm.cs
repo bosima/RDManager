@@ -136,7 +136,7 @@ namespace RDManager
                 rdp.CausesValidation = false;
                 rdp.AdvancedSettings9.EnableCredSspSupport = true;
                 rdp.AdvancedSettings9.RDPPort = server.ServerPort;
-                rdp.AdvancedSettings9.ClearTextPassword = EncryptUtils.DecryptPassword(server.Password);
+                rdp.AdvancedSettings9.ClearTextPassword = EncryptUtils.DecryptServerPassword(server);
                 rdp.AdvancedSettings9.BandwidthDetection = true;
                 rdp.ColorDepth = 32;
                 rdp.ConnectingText = "正在连接";
@@ -552,5 +552,45 @@ namespace RDManager
             }
         }
         #endregion
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            bool isConnected = false;
+
+            if (rdPanelDictionary.Count > 0)
+            {
+                foreach (var key in rdPanelDictionary.Keys)
+                {
+                    var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)rdPanelDictionary[key].Controls[0];
+                    if (rdp.Connected > 0)
+                    {
+                        isConnected = true;
+                    }
+                }
+            }
+
+            if (isConnected)
+            {
+                var result = MessageBox.Show("还有活动的服务器连接，确定关闭此工具吗？", "关闭提醒", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                if (result == DialogResult.OK)
+                {
+                    if (rdPanelDictionary.Count > 0)
+                    {
+                        foreach (var key in rdPanelDictionary.Keys)
+                        {
+                            var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)rdPanelDictionary[key].Controls[0];
+                            if (rdp.Connected > 0)
+                            {
+                                rdp.Disconnect();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    e.Cancel = true;
+                }
+            }
+        }
     }
 }

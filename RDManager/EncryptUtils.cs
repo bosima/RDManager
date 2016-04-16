@@ -1,4 +1,5 @@
 ﻿using RDManager.DAL;
+using RDManager.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -217,16 +218,43 @@ namespace RDManager
             return DES3Encrypt(clearPassword, secrectKey);
         }
 
+        public static string EncryptServerPassword(RDSServer server)
+        {
+            return EncryptPassword(MD5Encrypt16(server.ServerAddress, Encoding.ASCII) + server.Password);
+        }
+
+        public static string EncryptServerPassword(string serverAddress, string password)
+        {
+            return EncryptPassword(MD5Encrypt16(serverAddress, Encoding.ASCII) + password);
+        }
+
+        public static string DecryptServerPassword(RDSServer server)
+        {
+            return DecryptPassword(server.Password).Replace(MD5Encrypt16(server.ServerAddress, Encoding.ASCII), "");
+        }
+
         public static string DecryptPassword(string encryPassword)
         {
             var secrectKey = GetSecrectKey();
             return DES3Decrypt(encryPassword, secrectKey);
         }
 
-        private static string GetSecrectKey()
+        public static string GetSecrectKey()
         {
             RDSDataManager manager = new RDSDataManager();
             var initTimeString = manager.GetInitTime();
+            return GetSecrectKey(initTimeString);
+        }
+
+        public static string GetSecrectKey(string initTimeString)
+        {
+            RDSDataManager manager = new RDSDataManager();
+            var secrectKey = manager.GetSecrectKey();
+            return GetSecrectKey(initTimeString, secrectKey);
+        }
+
+        public static string GetSecrectKey(string initTimeString, string secrectKey)
+        {
             var startChar = initTimeString[0];
             var middleChar = initTimeString[(initTimeString.Length - 1) / 2];
             if (startChar < middleChar)
@@ -236,8 +264,6 @@ namespace RDManager
 
             var startIndex = int.Parse(startChar.ToString());
             startIndex = startIndex == 9 ? 8 : startIndex;
-            var secrectKey = manager.GetSecrectKey();
-            var secrectPassword = manager.GetPassword();
             return secrectKey.Substring(startIndex, 24);
         }
         #endregion

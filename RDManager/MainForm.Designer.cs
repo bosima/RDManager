@@ -54,7 +54,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.defaultRDPanel);
             this.splitContainer1.Size = new System.Drawing.Size(1942, 1176);
-            this.splitContainer1.SplitterDistance = 300;
+            this.splitContainer1.SplitterDistance = 350;
             this.splitContainer1.TabIndex = 0;
             this.splitContainer1.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer1_SplitterMoved);
             // 
@@ -63,7 +63,7 @@
             this.serverTree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.serverTree.Location = new System.Drawing.Point(0, 0);
             this.serverTree.Name = "serverTree";
-            this.serverTree.Size = new System.Drawing.Size(300, 1176);
+            this.serverTree.Size = new System.Drawing.Size(350, 1176);
             this.serverTree.TabIndex = 0;
             this.serverTree.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.serverTree_NodeMouseClick);
             this.serverTree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.serverTree_NodeMouseDoubleClick);
@@ -73,7 +73,7 @@
             this.defaultRDPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.defaultRDPanel.Location = new System.Drawing.Point(0, 0);
             this.defaultRDPanel.Name = "defaultRDPanel";
-            this.defaultRDPanel.Size = new System.Drawing.Size(1638, 1176);
+            this.defaultRDPanel.Size = new System.Drawing.Size(1588, 1176);
             this.defaultRDPanel.TabIndex = 0;
             // 
             // imageList1
@@ -93,6 +93,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "萤火虫远程桌面管理工具";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();

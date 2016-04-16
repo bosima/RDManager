@@ -41,7 +41,7 @@ namespace RDManager
                     txtServerName.Text = Model.ServerName;
                     txtServerAddress.Text = Model.ServerAddress;
                     txtUserName.Text = Model.UserName;
-                    txtPassword.Text = EncryptUtils.DecryptPassword(Model.Password);
+                    txtPassword.Text = EncryptUtils.DecryptServerPassword(Model);
                 }
             }
         }
@@ -73,7 +73,7 @@ namespace RDManager
             }
 
             RDSDataManager dataManager = new RDSDataManager();
-            Model.Password = EncryptUtils.EncryptPassword(Model.Password);
+            Model.Password = EncryptUtils.EncryptServerPassword(Model);
             dataManager.AddServer(Model);
 
             this.DialogResult = DialogResult.OK;
