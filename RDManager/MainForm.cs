@@ -561,10 +561,14 @@ namespace RDManager
             {
                 foreach (var key in rdPanelDictionary.Keys)
                 {
-                    var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)rdPanelDictionary[key].Controls[0];
-                    if (rdp.Connected > 0)
+                    var rdpPanel = rdPanelDictionary[key];
+                    if (rdpPanel != null && rdpPanel.Controls != null && rdpPanel.Controls.Count > 0)
                     {
-                        isConnected = true;
+                        var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)rdpPanel.Controls[0];
+                        if (rdp.Connected > 0)
+                        {
+                            isConnected = true;
+                        }
                     }
                 }
             }
@@ -578,10 +582,14 @@ namespace RDManager
                     {
                         foreach (var key in rdPanelDictionary.Keys)
                         {
-                            var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)rdPanelDictionary[key].Controls[0];
-                            if (rdp.Connected > 0)
+                            var rdpPanel = rdPanelDictionary[key];
+                            if (rdpPanel != null && rdpPanel.Controls != null && rdpPanel.Controls.Count > 0)
                             {
-                                rdp.Disconnect();
+                                var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)rdpPanel.Controls[0];
+                                if (rdp.Connected > 0)
+                                {
+                                    rdp.Disconnect();
+                                }
                             }
                         }
                     }
