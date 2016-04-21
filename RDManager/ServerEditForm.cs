@@ -40,6 +40,7 @@ namespace RDManager
                 {
                     txtServerName.Text = Model.ServerName;
                     txtServerAddress.Text = Model.ServerAddress;
+                    txtServerPort.Text = Model.ServerPort.ToString();
                     txtUserName.Text = Model.UserName;
                     txtPassword.Text = EncryptUtils.DecryptServerPassword(Model);
                 }

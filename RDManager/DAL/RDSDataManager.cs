@@ -211,32 +211,32 @@ namespace RDManager.DAL
             element.SetAttributeValue("username", model.UserName);
             element.SetAttributeValue("password", model.Password);
 
-            if (model.GroupID == Guid.Empty)
+            var docElelment = root.Descendants("server").Where(d => d.Attribute("id").Value == model.ServerID.ToString()).FirstOrDefault();
+            if (docElelment == null)
             {
-                root.Add(element);
-            }
-            else
-            {
-                var parentGroup = root.DescendantsAndSelf("group").Where(d => d.Attribute("id").Value == model.GroupID.ToString()).FirstOrDefault();
-                if (parentGroup == null)
+                if (model.GroupID == Guid.Empty)
                 {
-                    throw new ArgumentException("分组不存在！");
-                }
-
-                var docElelment = parentGroup.Descendants("server").Where(d => d.Attribute("id").Value == model.ServerID.ToString()).FirstOrDefault();
-                if (docElelment == null)
-                {
-                    parentGroup.Add(element);
+                    root.Add(element);
                 }
                 else
                 {
-                    docElelment.SetAttributeValue("id", model.ServerID);
-                    docElelment.SetAttributeValue("name", model.ServerName);
-                    docElelment.SetAttributeValue("address", model.ServerAddress);
-                    docElelment.SetAttributeValue("port", model.ServerPort);
-                    docElelment.SetAttributeValue("username", model.UserName);
-                    docElelment.SetAttributeValue("password", model.Password);
+                    var parentGroup = root.DescendantsAndSelf("group").Where(d => d.Attribute("id").Value == model.GroupID.ToString()).FirstOrDefault();
+                    if (parentGroup == null)
+                    {
+                        throw new ArgumentException("分组不存在！");
+                    }
+
+                    parentGroup.Add(element);
                 }
+            }
+            else
+            {
+                docElelment.SetAttributeValue("id", model.ServerID);
+                docElelment.SetAttributeValue("name", model.ServerName);
+                docElelment.SetAttributeValue("address", model.ServerAddress);
+                docElelment.SetAttributeValue("port", model.ServerPort);
+                docElelment.SetAttributeValue("username", model.UserName);
+                docElelment.SetAttributeValue("password", model.Password);
             }
 
             doc.Save(dataPath);
