@@ -18,9 +18,10 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -30,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>mycomputer1_72px.ico</ApplicationIcon>
@@ -57,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DAL\RDSDataManager.cs" />
-    <Compile Include="EncryptUtils.cs" />
+    <Compile Include="Ext\EncryptUtils.cs" />
     <Compile Include="GroupEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -85,6 +87,7 @@
     <Compile Include="Model\RDSDataNode.cs" />
     <Compile Include="Model\RDSGroup.cs" />
     <Compile Include="Model\RDSServer.cs" />
+    <Compile Include="Ext\MsRdpClientNonScriptableWrapper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerEditForm.cs">

@@ -202,9 +202,8 @@ namespace RDManager
                 byte[] Buffer = Convert.FromBase64String(data);
                 result = Encoding.UTF8.GetString(DESDecrypt.TransformFinalBlock(Buffer, 0, Buffer.Length)).Replace("\0", "").Trim();
             }
-            catch (Exception e)
+            catch
             {
-
             }
             return result;
         }

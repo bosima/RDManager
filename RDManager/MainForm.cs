@@ -138,13 +138,40 @@ namespace RDManager
                 rdp.AdvancedSettings9.RDPPort = server.ServerPort;
                 rdp.AdvancedSettings9.ClearTextPassword = EncryptUtils.DecryptServerPassword(server);
                 rdp.AdvancedSettings9.BandwidthDetection = true;
+                rdp.AdvancedSettings.allowBackgroundInput = 1;
                 rdp.ColorDepth = 32;
                 rdp.ConnectingText = "正在连接";
                 rdp.DisconnectedText = "连接已断开";
                 rdp.OnConnected += Rdp_OnConnected;
                 rdp.OnDisconnected += Rdp_OnDisconnected;
+                rdp.OnFatalError += Rdp_OnFatalError;
                 rdp.Connect();
             }
+        }
+
+        private void Rdp_OnFatalError(object sender, AxMSTSCLib.IMsTscAxEvents_OnFatalErrorEvent e)
+        {
+            //0
+            //An unknown error has occurred.
+            //1
+            //Internal error code 1.
+            //2
+            //An out-of - memory error has occurred.
+            //3
+            //A window-creation error has occurred.
+            //4
+            //Internal error code 2.
+            //5
+            //Internal error code 3.This is not a valid state.
+            //6
+            //Internal error code 4.
+            //7
+            //An unrecoverable error has occurred during client connection.
+            //100
+            //Winsock initialization error.
+
+            var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)sender;
+            rdp.DisconnectedText = "连接已断开，错误码: " + e.errorCode.ToString();
         }
 
         /// <summary>
@@ -187,6 +214,67 @@ namespace RDManager
                 var disConRDanel = rdPanelDictionary[panelName];
                 var disConRD = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)disConRDanel.Controls[0];
                 disConRD.Disconnect();
+            }
+        }
+
+        /// <summary>
+        /// 全屏显示远程桌面
+        /// </summary>
+        /// <param name="node"></param>
+        private void ShowFullScreenRemoteDesktop(RDSDataNode node)
+        {
+            ChangeCurrentRDPanel(node);
+
+            AxMSTSCLib.AxMsRdpClient9NotSafeForScripting rdp = null;
+
+            // 如果Panel中包含子控件，则让远程桌面控件启动连接
+            if (currentRDPanel.HasChildren)
+            {
+                rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)currentRDPanel.Controls[0];
+                rdp.FullScreenTitle = rdp.Server;
+                rdp.FullScreen = true;
+            }
+        }
+
+        /// <summary>
+        /// 发送Ctrl-Alt-Del到远程桌面
+        /// </summary>
+        /// <param name="node"></param>
+        private void SendCtrlAltDelToRemoteDesktop(RDSDataNode node)
+        {
+            ChangeCurrentRDPanel(node);
+
+            AxMSTSCLib.AxMsRdpClient9NotSafeForScripting rdp = null;
+
+            // 如果Panel中包含子控件，则让远程桌面控件启动连接
+            if (currentRDPanel.HasChildren)
+            {
+                rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)currentRDPanel.Controls[0];
+
+                // About Connected https://msdn.microsoft.com/en-us/library/aa382835(v=vs.85).aspx
+                if (rdp.Connected == 1)
+                {
+                    //try
+                    //{
+                    //    var ocxWrapper = new MsRdpClientNonScriptableWrapper(rdp.GetOcx());
+                    //    bool[] bools = { false, false, false, true, true, true, };
+                    //    int[] ints = { 0x1d, 0x38, 0x53, 0x53, 0x38, 0x1d };
+
+                    //    rdp.Focus();
+                    //    ocxWrapper.SendKeys(ints, bools);
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    MessageBox.Show(ex.Message);
+                    //}
+
+                    var ocx = (MSTSCLib.IMsRdpClientNonScriptable5)rdp.GetOcx();
+                    bool[] bools = { false, false, false, true, true, true, };
+                    int[] ints = { 0x1d, 0x38, 0x53, 0x53, 0x38, 0x1d };
+
+                    rdp.Focus();
+                    ocx.SendKeys(ints.Length, ref bools[0], ref ints[0]);
+                }
             }
         }
         #endregion
@@ -337,7 +425,15 @@ namespace RDManager
             btnDisconServerItem.Text = "断开服务器";
             btnDisconServerItem.Click += DisconServer_Click;
 
-            // TODO:添加一个全屏按钮
+            ToolStripMenuItem btnFullScreenServerItem = new ToolStripMenuItem();
+            btnFullScreenServerItem.Name = "btnFullScreenServerItem";
+            btnFullScreenServerItem.Text = "全屏显示";
+            btnFullScreenServerItem.Click += FullScreen_Click;
+
+            ToolStripMenuItem btnCADServerItem = new ToolStripMenuItem();
+            btnCADServerItem.Name = "btnCADServerItem";
+            btnCADServerItem.Text = "发送Ctrl+Alt+Del";
+            btnCADServerItem.Click += CAD_Click;
 
             ToolStripMenuItem btnEditServerItem = new ToolStripMenuItem();
             btnEditServerItem.Name = "btnEditServerItem";
@@ -354,6 +450,8 @@ namespace RDManager
             rightButtonMenu.Items.Add(btnAddServerItem);
             rightButtonMenu.Items.Add(btnConnectServerItem);
             rightButtonMenu.Items.Add(btnDisconServerItem);
+            rightButtonMenu.Items.Add(btnFullScreenServerItem);
+            rightButtonMenu.Items.Add(btnCADServerItem);
             rightButtonMenu.Items.Add(btnEditServerItem);
             rightButtonMenu.Items.Add(btnDeleteServerItem);
         }
@@ -397,6 +495,28 @@ namespace RDManager
                         ((ToolStripMenuItem)rightButtonMenu.Items[0]).Enabled = true;
                         ((ToolStripMenuItem)rightButtonMenu.Items[1]).Enabled = true;
                     }
+                }
+            }
+        }
+
+        private void FullScreen_Click(object sender, EventArgs e)
+        {
+            if (currentTreeNode != null)
+            {
+                if (currentTreeNode.NodeType == RDSDataNodeType.Server)
+                {
+                    ShowFullScreenRemoteDesktop(currentTreeNode);
+                }
+            }
+        }
+
+        private void CAD_Click(object sender, EventArgs e)
+        {
+            if (currentTreeNode != null)
+            {
+                if (currentTreeNode.NodeType == RDSDataNodeType.Server)
+                {
+                    SendCtrlAltDelToRemoteDesktop(currentTreeNode);
                 }
             }
         }
