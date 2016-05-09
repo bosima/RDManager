@@ -40,5 +40,13 @@ namespace RDManager
             mainForm.ShowDialog();
             this.Close();
         }
+
+        private void txtPassword_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                this.button2_Click(sender, e);
+            }
+        }
     }
 }

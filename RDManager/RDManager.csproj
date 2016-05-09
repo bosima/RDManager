@@ -135,7 +135,7 @@
     <Content Include="packages\AxMSTSCLib.dll" />
     <Content Include="packages\MSTSCLib.dll" />
     <Content Include="rds.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
