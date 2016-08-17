@@ -305,7 +305,8 @@ namespace RDManager
 
         private void InitTreeNodes(XElement root, TreeNode parentNode)
         {
-            foreach (XElement element in root.Elements())
+            var elements = root.Elements().Where(d => d.Attribute("name") != null).OrderBy(d => d.Attribute("name").Value);
+            foreach (XElement element in elements)
             {
                 if (element.Name == "group")
                 {
