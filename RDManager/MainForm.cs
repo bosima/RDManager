@@ -104,6 +104,7 @@ namespace RDManager
             ChangeCurrentRDPanel(node);
 
             AxMSTSCLib.AxMsRdpClient9NotSafeForScripting rdp = null;
+            var server = (RDSServer)node.RDSData;
 
             // 如果Panel中包含子控件，则让远程桌面控件启动连接
             if (currentRDPanel.HasChildren)
@@ -113,6 +114,13 @@ namespace RDManager
                 // About Connected https://msdn.microsoft.com/en-us/library/aa382835(v=vs.85).aspx
                 if (rdp.Connected == 0)
                 {
+                    // 防止服务器相关参数变更
+                    rdp.Tag = node;
+                    rdp.Name = "rdp_" + server.ServerID.ToString();
+                    rdp.Server = server.ServerAddress;
+                    rdp.UserName = server.UserName;
+                    rdp.AdvancedSettings9.ClearTextPassword = EncryptUtils.DecryptServerPassword(server);
+
                     rdp.Connect();
                 }
             }
@@ -120,8 +128,6 @@ namespace RDManager
             // 如果远程桌面控件不存在，则创建
             if (rdp == null)
             {
-                var server = (RDSServer)node.RDSData;
-
                 rdp = new AxMSTSCLib.AxMsRdpClient9NotSafeForScripting();
                 rdp.Width = this.splitContainer1.Panel2.Width;
                 rdp.Height = this.splitContainer1.Panel2.Height;
