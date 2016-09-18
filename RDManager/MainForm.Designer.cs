@@ -60,13 +60,18 @@
             // 
             // serverTree
             // 
+            this.serverTree.AllowDrop = true;
             this.serverTree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.serverTree.Location = new System.Drawing.Point(0, 0);
             this.serverTree.Name = "serverTree";
             this.serverTree.Size = new System.Drawing.Size(350, 1176);
             this.serverTree.TabIndex = 0;
+            this.serverTree.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.serverTree_ItemDrag);
             this.serverTree.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.serverTree_NodeMouseClick);
             this.serverTree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.serverTree_NodeMouseDoubleClick);
+            this.serverTree.DragDrop += new System.Windows.Forms.DragEventHandler(this.serverTree_DragDrop);
+            this.serverTree.DragEnter += new System.Windows.Forms.DragEventHandler(this.serverTree_DragEnter);
+            this.serverTree.DragOver += new System.Windows.Forms.DragEventHandler(this.serverTree_DragOver);
             // 
             // defaultRDPanel
             // 

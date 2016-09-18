@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml.Linq;
@@ -18,6 +19,10 @@ namespace RDManager
         private Panel currentRDPanel;
         private Dictionary<string, Panel> rdPanelDictionary;
         private ContextMenuStrip rightButtonMenu;
+        const int scrollRegion = 25;
+
+        [DllImport("user32.dll")]
+        private static extern int SendMessage(IntPtr hWnd, int wMsg, int wParam, int lParam);
 
         public MainForm()
         {
@@ -115,9 +120,10 @@ namespace RDManager
                 if (rdp.Connected == 0)
                 {
                     // 防止服务器相关参数变更
-                    rdp.Tag = node;
+                    rdp.Tag = server.ServerID.ToString();
                     rdp.Name = "rdp_" + server.ServerID.ToString();
                     rdp.Server = server.ServerAddress;
+                    rdp.AdvancedSettings9.RDPPort = server.ServerPort;
                     rdp.UserName = server.UserName;
                     rdp.AdvancedSettings9.ClearTextPassword = EncryptUtils.DecryptServerPassword(server);
 
@@ -135,7 +141,7 @@ namespace RDManager
 
                 currentRDPanel.Controls.Add(rdp);
 
-                rdp.Tag = node;
+                rdp.Tag = server.ServerID.ToString();
                 rdp.Name = "rdp_" + server.ServerID.ToString();
                 rdp.Server = server.ServerAddress;
                 rdp.UserName = server.UserName;
@@ -188,7 +194,8 @@ namespace RDManager
         private void Rdp_OnDisconnected(object sender, AxMSTSCLib.IMsTscAxEvents_OnDisconnectedEvent e)
         {
             var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)sender;
-            var node = (RDSDataNode)rdp.Tag;
+            var nodeId = rdp.Tag.ToString();
+            var node = (RDSDataNode)FindNode(nodeId, serverTree.Nodes[0]);
 
             node.ImageIndex = 1;
             node.SelectedImageIndex = 1;
@@ -202,7 +209,8 @@ namespace RDManager
         private void Rdp_OnConnected(object sender, EventArgs e)
         {
             var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)sender;
-            var node = (RDSDataNode)rdp.Tag;
+            var nodeId = rdp.Tag.ToString();
+            var node = (RDSDataNode)FindNode(nodeId, serverTree.Nodes[0]);
 
             node.ImageIndex = 2;
             node.SelectedImageIndex = 2;
@@ -407,6 +415,163 @@ namespace RDManager
             }
         }
 
+        /// <summary>
+        /// 拖动释放
+        /// 参考：http://www.cnblogs.com/jiewei915/archive/2012/01/11/2318951.html
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void serverTree_DragDrop(object sender, DragEventArgs e)
+        {
+            // 得到拖放中的节点
+            var moveDataNode = (RDSDataNode)e.Data.GetData("RDManager.Model.RDSDataNode");
+
+            // 根据鼠标坐标确定要移动到的目标节点
+            TreeNode targetNode = new TreeNode();
+            Point pt = ((TreeView)(sender)).PointToClient(new Point(e.X, e.Y));
+            targetNode = this.serverTree.GetNodeAt(pt);
+            var targetDataNode = (RDSDataNode)targetNode;
+
+            // 如果目标为自己，返回
+            if (targetDataNode.Text == moveDataNode.Text)
+            {
+                return;
+            }
+
+            // 如果目标包含在自己的节点树中，返回            
+            if (moveDataNode.Nodes.Contains(targetDataNode))
+            {
+                return;
+            }
+            else if (targetDataNode.FullPath.Contains(moveDataNode.FullPath))
+            {
+                return;
+            }
+
+            // 如果目标节点是Server，返回
+            if (targetDataNode.NodeType == RDSDataNodeType.Server)
+            {
+                return;
+            }
+
+            // 如果目标为子节点，返回
+            if (targetDataNode.Parent == moveDataNode)
+            {
+                return;
+            }
+
+            // 如果目标为父节点，返回
+            if (targetDataNode == moveDataNode.Parent)
+            {
+                return;
+            }
+
+            // 移除拖放的节点
+            RemoveServerTreeNode(moveDataNode, false);
+
+            // 添加节点
+            var newMoveNode = (RDSDataNode)moveDataNode.Clone();
+            newMoveNode.RDSData = moveDataNode.RDSData;
+            newMoveNode.NodeType = moveDataNode.NodeType;
+
+            // 保存节点
+            var server = (RDSServer)newMoveNode.RDSData;
+            server.GroupID = (Guid)targetDataNode.Tag;
+            RDSDataManager dataManager = new RDSDataManager();
+            dataManager.AddServer(server);
+
+            // 将节点插入到分组中
+            targetDataNode.Nodes.Insert(targetDataNode.Nodes.Count, newMoveNode);
+
+            // 更新当前拖动的节点选择
+            serverTree.SelectedNode = newMoveNode;
+
+            // 展开当前节点的父节点
+            targetDataNode.Expand();
+        }
+
+        /// <summary>
+        /// 拖动鼠标移动进入某个元素
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void serverTree_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent("RDManager.Model.RDSDataNode"))
+            {
+                e.Effect = DragDropEffects.Move;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        /// <summary>
+        /// 开始拖动
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void serverTree_ItemDrag(object sender, ItemDragEventArgs e)
+        {
+            TreeNode tn = e.Item as TreeNode;
+
+            if (e.Button == MouseButtons.Left && tn != null && tn.Parent != null)
+            {
+                DoDragDrop(e.Item, DragDropEffects.Move);
+            }
+        }
+
+        /// <summary>
+        /// 拖动悬停
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void serverTree_DragOver(object sender, DragEventArgs e)
+        {
+            // 拖动过程中高亮鼠标滑过的节点
+            TreeViewHitTestInfo hti = this.serverTree.HitTest(this.serverTree.PointToClient(new Point(e.X, e.Y)));
+            this.serverTree.SelectedNode = hti.Node;
+
+            //拖动过程中鼠标达到上下边界时滚动条自动调整            
+            if (e.Y > (serverTree.Height + scrollRegion * 8))
+            {
+                //向下滚动
+                SendMessage(serverTree.Handle, (int)277, (int)1, 0);
+            }
+            else if (e.Y < (serverTree.Top + scrollRegion))
+            {
+                //向上滚动
+                SendMessage(serverTree.Handle, (int)277, (int)0, 0);
+            }
+        }
+
+        /// <summary>
+        /// 根据节点ID递归查找结点
+        /// </summary>
+        /// <param name="nodeId"></param>
+        /// <param name="parentNode"></param>
+        /// <returns></returns>
+        private TreeNode FindNode(string nodeId, TreeNode parentNode)
+        {
+            TreeNodeCollection nodes = parentNode.Nodes;
+            foreach (TreeNode n in nodes)
+            {
+                if (n.Tag.ToString() == nodeId)
+                {
+                    return n;
+                }
+
+                TreeNode temp = FindNode(nodeId, n);
+                if (temp != null)
+                {
+                    return temp;
+                }
+            }
+
+            return null;
+        }
+
         #endregion
 
         #region 右键菜单
@@ -530,7 +695,16 @@ namespace RDManager
 
         private void Delete_Click(object sender, EventArgs e)
         {
-            var nodeID = (Guid)currentTreeNode.Tag;
+            RemoveServerTreeNode(currentTreeNode);
+        }
+
+        /// <summary>
+        /// 移除节点
+        /// </summary>
+        /// <param name="node"></param>
+        private void RemoveServerTreeNode(RDSDataNode node, bool removePanel = true)
+        {
+            var nodeID = (Guid)node.Tag;
 
             if (nodeID != Guid.Empty)
             {
@@ -539,13 +713,16 @@ namespace RDManager
                 dataManager.Remove(nodeID);
 
                 // 树形菜单中移除
-                currentTreeNode.Remove();
+                node.Remove();
 
                 // Panel移除
-                var panelID = "panel_" + nodeID;
-                if (rdPanelDictionary.ContainsKey(panelID))
+                if (removePanel)
                 {
-                    rdPanelDictionary.Remove(panelID);
+                    var panelID = "panel_" + nodeID;
+                    if (rdPanelDictionary.ContainsKey(panelID))
+                    {
+                        rdPanelDictionary.Remove(panelID);
+                    }
                 }
             }
         }
