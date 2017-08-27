@@ -11,9 +11,9 @@ A tool for remote computer manager, surport windows remote desktop and ssh.
 2）
 由于还有些Linux的服务器需要管理，因此增加了SSH终端管理的功能。
 
-SSH功能来源于 https://github.com/DavidFlamini/terminalcontrol，而这个工具来源于poderosa的早期版本。
+SSH功能来源于poderosa的早期版本， https://github.com/DavidFlamini/terminalcontrol
 
-poderosa已经有新的版本，功能更完善强大，如需了解，看这里：https://github.com/poderosaproject/poderosa。
+poderosa已经有新的版本，功能更完善强大，如需了解，看这里：https://github.com/poderosaproject/poderosa
 
 3）看看能不能增加一个SFTP的功能...
 
