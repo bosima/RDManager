@@ -43,6 +43,10 @@ namespace RDManager
                     txtServerPort.Text = Model.ServerPort.ToString();
                     txtUserName.Text = Model.UserName;
                     txtPassword.Text = EncryptUtils.DecryptServerPassword(Model);
+                    rbtnWindows.Checked = Model.OpType == "Windows" ? true : false;
+                    rbtnLinux.Checked = Model.OpType == "Windows" ? false : true;
+                    rbtnRD.Checked = Model.LinkType == "远程桌面" ? true : false;
+                    rbtnSSH.Checked = Model.LinkType == "远程桌面" ? false : true;
                 }
             }
         }
@@ -54,6 +58,8 @@ namespace RDManager
             Model.ServerAddress = txtServerAddress.Text.Trim();
             Model.UserName = txtUserName.Text.Trim();
             Model.Password = txtPassword.Text.Trim();
+            Model.OpType = rbtnWindows.Checked ? rbtnWindows.Text : rbtnLinux.Text;
+            Model.LinkType = rbtnRD.Checked ? rbtnRD.Text : rbtnSSH.Text;
 
             int serverPort = 0;
             if (!int.TryParse(txtServerPort.Text.Trim(), out serverPort))
@@ -67,7 +73,9 @@ namespace RDManager
             if (string.IsNullOrWhiteSpace(Model.ServerName) ||
                 string.IsNullOrWhiteSpace(Model.ServerAddress) ||
                 string.IsNullOrWhiteSpace(Model.UserName) ||
-                string.IsNullOrWhiteSpace(Model.Password))
+                string.IsNullOrWhiteSpace(Model.Password) ||
+                string.IsNullOrWhiteSpace(Model.OpType) ||
+                string.IsNullOrWhiteSpace(Model.LinkType))
             {
                 MessageBox.Show("请首先填写所有项目！", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -78,6 +86,41 @@ namespace RDManager
             dataManager.AddServer(Model);
 
             this.DialogResult = DialogResult.OK;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void rbtnWindows_Click(object sender, EventArgs e)
+        {
+            rbtnRD.Checked = true;
+            txtServerPort.Text = "3389";
+            txtUserName.Text = "administrator";
+        }
+
+        private void rbtnLinux_Click(object sender, EventArgs e)
+        {
+            rbtnSSH.Checked = true;
+            txtServerPort.Text = "22";
+            txtUserName.Text = "root";
+        }
+
+        private void txtServerAddress_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtServerName.Text))
+            {
+                txtServerName.Text = txtServerAddress.Text;
+            }
+        }
+
+        private void txtServerName_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtServerAddress.Text))
+            {
+                txtServerAddress.Text = txtServerName.Text;
+            }
         }
     }
 }

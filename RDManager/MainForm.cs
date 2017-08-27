@@ -4,12 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using WalburySoftware;
 
 namespace RDManager
 {
@@ -41,7 +44,7 @@ namespace RDManager
 
             InitTreeView();
 
-            InitRemoteDesktop();
+            InitRemoteTerminal();
         }
 
         private void InitUser()
@@ -54,8 +57,8 @@ namespace RDManager
             this.WindowState = FormWindowState.Maximized;
         }
 
-        #region 远程桌面操作
-        private void InitRemoteDesktop()
+        #region 远程终端操作
+        private void InitRemoteTerminal()
         {
             rdPanelDictionary = new Dictionary<string, Panel>();
             currentRDPanel = defaultRDPanel;
@@ -81,7 +84,8 @@ namespace RDManager
             {
                 rdPanel = rdPanelDictionary[panelID];
             }
-            else {
+            else
+            {
                 rdPanel = new Panel();
                 rdPanel.Dock = System.Windows.Forms.DockStyle.Fill;
                 rdPanel.Location = new System.Drawing.Point(0, 0);
@@ -100,16 +104,82 @@ namespace RDManager
         }
 
         /// <summary>
-        /// 连接远程桌面
+        /// 连接远程终端
         /// </summary>
         /// <param name="server"></param>
         /// <param name="connectedAction"></param>
-        private void ConnectRemoteDesktop(RDSDataNode node)
+        private void ConnectRemoteTerminal(RDSDataNode node)
         {
             ChangeCurrentRDPanel(node);
 
-            AxMSTSCLib.AxMsRdpClient9NotSafeForScripting rdp = null;
             var server = (RDSServer)node.RDSData;
+            if (server.OpType == "Linux")
+            {
+                ConnectSSH(server);
+            }
+            else
+            {
+                if (server.LinkType == "SSH2")
+                {
+                    ConnectSSH(server);
+                }
+                else
+                {
+                    ConnectWindowsDesktop(server);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 连接SSH
+        /// </summary>
+        /// <param name="server"></param>
+        private void ConnectSSH(RDSServer server)
+        {
+            var parent = currentRDPanel;
+            TerminalControl console = null;
+
+            if (parent.HasChildren)
+            {
+                console = (TerminalControl)currentRDPanel.Controls[0];
+                console.Tag = server.ServerID.ToString();
+                console.UserName = server.UserName;
+                console.Password = EncryptUtils.DecryptServerPassword(server);
+                console.Host = server.ServerAddress;
+                console.Port = server.ServerPort;
+
+                if (!console.IsConnected)
+                {
+                    console.Connect();
+                    console.Focus();
+                }
+            }
+            else
+            {
+                console = new TerminalControl(server.UserName, EncryptUtils.DecryptServerPassword(server), server.ServerAddress, server.ServerPort);
+                console.Tag = server.ServerID.ToString();
+                console.Width = this.splitContainer1.Panel2.Width;
+                console.Height = this.splitContainer1.Panel2.Height;
+                console.BackColor = System.Drawing.Color.Teal;
+                console.ForeColor = System.Drawing.Color.Snow;
+                console.Dock = System.Windows.Forms.DockStyle.Fill;
+                console.Font = new Font("Courier New", 10);
+                console.OnConnected += Ssh_OnConnected;
+                console.OnDisconnected += Ssh_OnDisconnected;
+                parent.Controls.Add(console);
+
+                console.Connect();
+                console.Focus();
+            }
+        }
+
+        /// <summary>
+        /// 连接Windows远程桌面
+        /// </summary>
+        /// <param name="server"></param>
+        private void ConnectWindowsDesktop(RDSServer server)
+        {
+            AxMSTSCLib.AxMsRdpClient9NotSafeForScripting rdp = null;
 
             // 如果Panel中包含子控件，则让远程桌面控件启动连接
             if (currentRDPanel.HasChildren)
@@ -217,17 +287,46 @@ namespace RDManager
         }
 
         /// <summary>
-        /// 断开远程桌面连接
+        /// SSH连接成功事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Ssh_OnConnected(object sender, EventArgs e)
+        {
+            var rdp = (TerminalControl)sender;
+            var nodeId = rdp.Tag.ToString();
+            var node = (RDSDataNode)FindNode(nodeId, serverTree.Nodes[0]);
+
+            node.ImageIndex = 2;
+            node.SelectedImageIndex = 2;
+        }
+
+        /// <summary>
+        /// SSH连接断开事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Ssh_OnDisconnected(object sender, EventArgs e)
+        {
+            var rdp = (TerminalControl)sender;
+            var nodeId = rdp.Tag.ToString();
+            var node = (RDSDataNode)FindNode(nodeId, serverTree.Nodes[0]);
+
+            node.ImageIndex = 1;
+            node.SelectedImageIndex = 1;
+        }
+
+        /// <summary>
+        /// 断开远程终端连接
         /// </summary>
         /// <param name="server"></param>
-        private void DisConRemoteDesktop(RDSDataNode node)
+        private void DisConRemoteTerminal(RDSDataNode node)
         {
             var panelName = "panel_" + node.Name.Replace("node_", "");
             if (rdPanelDictionary.ContainsKey(panelName))
             {
                 var disConRDanel = rdPanelDictionary[panelName];
-                var disConRD = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)disConRDanel.Controls[0];
-                disConRD.Disconnect();
+                DisconnectPanel(disConRDanel);
             }
         }
 
@@ -239,14 +338,22 @@ namespace RDManager
         {
             ChangeCurrentRDPanel(node);
 
-            AxMSTSCLib.AxMsRdpClient9NotSafeForScripting rdp = null;
-
-            // 如果Panel中包含子控件，则让远程桌面控件启动连接
-            if (currentRDPanel.HasChildren)
+            if (node.NodeType == RDSDataNodeType.Server)
             {
-                rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)currentRDPanel.Controls[0];
-                rdp.FullScreenTitle = rdp.Server;
-                rdp.FullScreen = true;
+                var server = (RDSServer)node.RDSData;
+
+                if (server.LinkType == "远程桌面")
+                {
+                    AxMSTSCLib.AxMsRdpClient9NotSafeForScripting rdp = null;
+
+                    // 如果Panel中包含子控件，则让远程桌面控件启动连接
+                    if (currentRDPanel.HasChildren)
+                    {
+                        rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)currentRDPanel.Controls[0];
+                        rdp.FullScreenTitle = rdp.Server;
+                        rdp.FullScreen = true;
+                    }
+                }
             }
         }
 
@@ -258,36 +365,30 @@ namespace RDManager
         {
             ChangeCurrentRDPanel(node);
 
-            AxMSTSCLib.AxMsRdpClient9NotSafeForScripting rdp = null;
-
-            // 如果Panel中包含子控件，则让远程桌面控件启动连接
-            if (currentRDPanel.HasChildren)
+            if (node.NodeType == RDSDataNodeType.Server)
             {
-                rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)currentRDPanel.Controls[0];
+                var server = (RDSServer)node.RDSData;
 
-                // About Connected https://msdn.microsoft.com/en-us/library/aa382835(v=vs.85).aspx
-                if (rdp.Connected == 1)
+                if (server.LinkType == "远程桌面")
                 {
-                    //try
-                    //{
-                    //    var ocxWrapper = new MsRdpClientNonScriptableWrapper(rdp.GetOcx());
-                    //    bool[] bools = { false, false, false, true, true, true, };
-                    //    int[] ints = { 0x1d, 0x38, 0x53, 0x53, 0x38, 0x1d };
+                    AxMSTSCLib.AxMsRdpClient9NotSafeForScripting rdp = null;
 
-                    //    rdp.Focus();
-                    //    ocxWrapper.SendKeys(ints, bools);
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    MessageBox.Show(ex.Message);
-                    //}
+                    // 如果Panel中包含子控件，则让远程桌面控件启动连接
+                    if (currentRDPanel.HasChildren)
+                    {
+                        rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)currentRDPanel.Controls[0];
 
-                    var ocx = (MSTSCLib.IMsRdpClientNonScriptable5)rdp.GetOcx();
-                    bool[] bools = { false, false, false, true, true, true, };
-                    int[] ints = { 0x1d, 0x38, 0x53, 0x53, 0x38, 0x1d };
+                        // About Connected https://msdn.microsoft.com/en-us/library/aa382835(v=vs.85).aspx
+                        if (rdp.Connected == 1)
+                        {
+                            var ocx = (MSTSCLib.IMsRdpClientNonScriptable5)rdp.GetOcx();
+                            bool[] bools = { false, false, false, true, true, true, };
+                            int[] ints = { 0x1d, 0x38, 0x53, 0x53, 0x38, 0x1d };
 
-                    rdp.Focus();
-                    ocx.SendKeys(ints.Length, ref bools[0], ref ints[0]);
+                            rdp.Focus();
+                            ocx.SendKeys(ints.Length, ref bools[0], ref ints[0]);
+                        }
+                    }
                 }
             }
         }
@@ -350,6 +451,8 @@ namespace RDManager
             string port = element.Attribute("port").Value;
             string username = element.Attribute("username").Value;
             string password = element.Attribute("password").Value;
+            string optype = element.Attribute("optype").Value;
+            string linktype = element.Attribute("linktype").Value;
 
             RDSDataNode item = new RDSDataNode();
             item.Name = "node_" + id;
@@ -366,7 +469,9 @@ namespace RDManager
                 ServerAddress = address,
                 ServerPort = int.Parse(port),
                 UserName = username,
-                Password = password
+                Password = password,
+                OpType = optype,
+                LinkType = linktype
             };
             return item;
         }
@@ -410,7 +515,7 @@ namespace RDManager
 
                 if (isDoConnect)
                 {
-                    ConnectRemoteDesktop(node);
+                    ConnectRemoteTerminal(node);
                 }
             }
         }
@@ -475,10 +580,21 @@ namespace RDManager
             newMoveNode.NodeType = moveDataNode.NodeType;
 
             // 保存节点
-            var server = (RDSServer)newMoveNode.RDSData;
-            server.GroupID = (Guid)targetDataNode.Tag;
-            RDSDataManager dataManager = new RDSDataManager();
-            dataManager.AddServer(server);
+            if (newMoveNode.NodeType == RDSDataNodeType.Group)
+            {
+                var group = (RDSGroup)newMoveNode.RDSData;
+                group.ParentGroupID = (Guid)targetDataNode.Tag;
+                RDSDataManager dataManager = new RDSDataManager();
+                dataManager.AddGroup(group);
+            }
+            else
+            {
+                var server = (RDSServer)newMoveNode.RDSData;
+                server.GroupID = (Guid)targetDataNode.Tag;
+                RDSDataManager dataManager = new RDSDataManager();
+                dataManager.AddServer(server);
+            }
+
 
             // 将节点插入到分组中
             targetDataNode.Nodes.Insert(targetDataNode.Nodes.Count, newMoveNode);
@@ -824,7 +940,7 @@ namespace RDManager
             {
                 if (currentTreeNode.NodeType == RDSDataNodeType.Server)
                 {
-                    ConnectRemoteDesktop(currentTreeNode);
+                    ConnectRemoteTerminal(currentTreeNode);
                 }
             }
         }
@@ -835,7 +951,7 @@ namespace RDManager
             {
                 if (currentTreeNode.NodeType == RDSDataNodeType.Server)
                 {
-                    DisConRemoteDesktop(currentTreeNode);
+                    DisConRemoteTerminal(currentTreeNode);
                 }
             }
         }
@@ -849,9 +965,18 @@ namespace RDManager
             {
                 if (currentRDPanel.HasChildren)
                 {
-                    var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)currentRDPanel.Controls[0];
-                    rdp.Width = this.splitContainer1.Panel2.Width;
-                    rdp.Height = this.splitContainer1.Panel2.Height;
+                    if (currentRDPanel.Controls[0] is TerminalControl)
+                    {
+                        var console = (TerminalControl)currentRDPanel.Controls[0];
+                        console.Width = this.splitContainer1.Panel2.Width;
+                        console.Height = this.splitContainer1.Panel2.Height;
+                    }
+                    else
+                    {
+                        var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)currentRDPanel.Controls[0];
+                        rdp.Width = this.splitContainer1.Panel2.Width;
+                        rdp.Height = this.splitContainer1.Panel2.Height;
+                    }
                 }
             }
         }
@@ -859,48 +984,119 @@ namespace RDManager
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            bool isConnected = false;
+            DoCloseForm(e);
+        }
 
+        private void DoCloseForm(FormClosingEventArgs e)
+        {
             if (rdPanelDictionary.Count > 0)
             {
                 foreach (var key in rdPanelDictionary.Keys)
                 {
                     var rdpPanel = rdPanelDictionary[key];
-                    if (rdpPanel != null && rdpPanel.Controls != null && rdpPanel.Controls.Count > 0)
-                    {
-                        var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)rdpPanel.Controls[0];
-                        if (rdp.Connected > 0)
-                        {
-                            isConnected = true;
-                        }
-                    }
+                    DisconnectPanel(rdpPanel);
                 }
             }
+        }
 
-            if (isConnected)
+        private void DisconnectPanel(Panel rdpPanel)
+        {
+            if (rdpPanel != null && rdpPanel.Controls != null && rdpPanel.Controls.Count > 0)
             {
-                var result = MessageBox.Show("还有活动的服务器连接，确定关闭此工具吗？", "关闭提醒", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
-                if (result == DialogResult.OK)
+                if (rdpPanel.Controls[0] is TerminalControl)
                 {
-                    if (rdPanelDictionary.Count > 0)
+                    var console = (TerminalControl)rdpPanel.Controls[0];
+                    if (console.IsConnected)
                     {
-                        foreach (var key in rdPanelDictionary.Keys)
-                        {
-                            var rdpPanel = rdPanelDictionary[key];
-                            if (rdpPanel != null && rdpPanel.Controls != null && rdpPanel.Controls.Count > 0)
-                            {
-                                var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)rdpPanel.Controls[0];
-                                if (rdp.Connected > 0)
-                                {
-                                    rdp.Disconnect();
-                                }
-                            }
-                        }
+                        console.Disconnect();
                     }
                 }
                 else
                 {
-                    e.Cancel = true;
+                    var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)rdpPanel.Controls[0];
+                    if (rdp.Connected > 0)
+                    {
+                        rdp.Disconnect();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 关闭退出窗体
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        /// <summary>
+        /// 关于此工具
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("萤火虫远程桌面管理工具 v1.0", "关于", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// 解密加密的全部密码
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void decryptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // 查询全部数据
+            RDSDataManager dataManager = new RDSDataManager();
+            var doc = dataManager.GetData();
+            var root = doc.Root;
+
+            RDSDataNode rootNode = new RDSDataNode();
+            rootNode.Text = "远程桌面";
+            rootNode.Tag = Guid.Empty;
+            rootNode.NodeType = RDSDataNodeType.Group;
+            rootNode.ContextMenuStrip = rightButtonMenu;
+            rootNode.ImageIndex = 0;
+
+            InitTreeNodes(root, rootNode);
+
+            DecryptPassword(dataManager, rootNode);
+
+            // 清除加密Key和密钥，下次登录需
+            dataManager.SetSecrectKey(string.Empty);
+            dataManager.SetInitTime(string.Empty);
+            dataManager.SetPassword(string.Empty);
+
+            MessageBox.Show("处理成功，请重新启动。", "处理成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// 递归解密全部密码
+        /// </summary>
+        /// <param name="dataManager"></param>
+        /// <param name="parentNode"></param>
+        private void DecryptPassword(RDSDataManager dataManager, RDSDataNode parentNode)
+        {
+            if (parentNode.Nodes == null && parentNode.Nodes.Count <= 0)
+            {
+                return;
+            }
+
+            // 恢复密码为明文
+            foreach (RDSDataNode node in parentNode.Nodes)
+            {
+                if (node.NodeType == RDSDataNodeType.Server)
+                {
+                    var server = (RDSServer)node.RDSData;
+                    server.Password = EncryptUtils.DecryptServerPassword(server);
+                    dataManager.AddServer(server);
+                }
+                else
+                {
+                    DecryptPassword(dataManager, node);
                 }
             }
         }

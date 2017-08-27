@@ -36,6 +36,7 @@
   <PropertyGroup>
     <ApplicationIcon>mycomputer1_72px.ico</ApplicationIcon>
   </PropertyGroup>
+ 
   <ItemGroup>
     <Reference Include="AxMSTSCLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\AxMSTSCLib.dll</HintPath>
@@ -96,6 +97,8 @@
     <Compile Include="ServerEditForm.Designer.cs">
       <DependentUpon>ServerEditForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="WindowLongFlags.cs" />
+    <Compile Include="WindowStyles.cs" />
     <EmbeddedResource Include="GroupEditForm.resx">
       <DependentUpon>GroupEditForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -138,6 +141,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Terminal Control\Terminal Control.csproj">
+      <Project>{60be1158-c079-4603-8bc4-1658133e8ee5}</Project>
+      <Name>Terminal Control</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

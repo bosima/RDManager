@@ -80,6 +80,11 @@ namespace RDManager.DAL
 
                 doc.Save(dataPath);
             }
+            else
+            {
+                secKeyElement.Value = secKey;
+                doc.Save(dataPath);
+            }
         }
 
         public void SetInitTime(string time)
@@ -96,6 +101,11 @@ namespace RDManager.DAL
 
                 doc.Save(dataPath);
             }
+            else
+            {
+                initTimeElement.Value = time;
+                doc.Save(dataPath);
+            }
         }
 
         public void SetPassword(string password)
@@ -110,6 +120,11 @@ namespace RDManager.DAL
                 passElement.Value = password;
                 root.Add(passElement);
 
+                doc.Save(dataPath);
+            }
+            else
+            {
+                passElement.Value = password;
                 doc.Save(dataPath);
             }
         }
@@ -210,6 +225,8 @@ namespace RDManager.DAL
             element.SetAttributeValue("port", model.ServerPort);
             element.SetAttributeValue("username", model.UserName);
             element.SetAttributeValue("password", model.Password);
+            element.SetAttributeValue("optype", model.OpType);
+            element.SetAttributeValue("linktype", model.LinkType);
 
             var docElelment = root.Descendants("server").Where(d => d.Attribute("id").Value == model.ServerID.ToString()).FirstOrDefault();
             if (docElelment == null)
@@ -237,6 +254,8 @@ namespace RDManager.DAL
                 docElelment.SetAttributeValue("port", model.ServerPort);
                 docElelment.SetAttributeValue("username", model.UserName);
                 docElelment.SetAttributeValue("password", model.Password);
+                docElelment.SetAttributeValue("optype", model.OpType);
+                docElelment.SetAttributeValue("linktype", model.LinkType);
             }
 
             doc.Save(dataPath);

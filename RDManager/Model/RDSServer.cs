@@ -14,6 +14,8 @@ namespace RDManager.Model
         public int ServerPort { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
+        public string OpType { get; set; }
+        public string LinkType { get; set; }
 
         public RDSServer Clone()
         {
@@ -25,6 +27,8 @@ namespace RDManager.Model
             newServer.ServerPort = ServerPort;
             newServer.UserName = UserName;
             newServer.Password = Password;
+            newServer.OpType = OpType;
+            newServer.LinkType = LinkType;
 
             return newServer;
         }
