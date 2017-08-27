@@ -91,6 +91,7 @@ namespace RDManager
                 rdPanel.Location = new System.Drawing.Point(0, 0);
                 rdPanel.Name = panelID;
                 rdPanel.TabIndex = 0;
+                rdPanel.GotFocus += RdPanel_GotFocus;
             }
 
             this.splitContainer1.Panel2.Controls.Add(rdPanel);
@@ -101,6 +102,19 @@ namespace RDManager
             }
 
             currentRDPanel = rdPanel;
+            currentRDPanel.Focus();
+        }
+
+        private void RdPanel_GotFocus(object sender, EventArgs e)
+        {
+            var panel = (Panel)sender;
+            if (panel != null && panel.Controls != null && panel.Controls.Count > 0)
+            {
+                if (panel.Controls[0] is TerminalControl)
+                {
+                    panel.Controls[0].Focus();
+                }
+            }
         }
 
         /// <summary>
@@ -451,8 +465,8 @@ namespace RDManager
             string port = element.Attribute("port").Value;
             string username = element.Attribute("username").Value;
             string password = element.Attribute("password").Value;
-            string optype = element.Attribute("optype").Value;
-            string linktype = element.Attribute("linktype").Value;
+            string optype = element.Attributes().Any(d => d.Name == "optype") ? element.Attribute("optype").Value : string.Empty;
+            string linktype = element.Attributes().Any(d => d.Name == "linktype") ? element.Attribute("linktype").Value : string.Empty;
 
             RDSDataNode item = new RDSDataNode();
             item.Name = "node_" + id;
@@ -504,7 +518,7 @@ namespace RDManager
             if (treeNode != null)
             {
                 treeNode.Checked = true;
-
+         
                 var node = (RDSDataNode)treeNode;
                 currentTreeNode = node;
 

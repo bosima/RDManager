@@ -43,10 +43,10 @@ namespace RDManager
                     txtServerPort.Text = Model.ServerPort.ToString();
                     txtUserName.Text = Model.UserName;
                     txtPassword.Text = EncryptUtils.DecryptServerPassword(Model);
-                    rbtnWindows.Checked = Model.OpType == "Windows" ? true : false;
-                    rbtnLinux.Checked = Model.OpType == "Windows" ? false : true;
-                    rbtnRD.Checked = Model.LinkType == "远程桌面" ? true : false;
-                    rbtnSSH.Checked = Model.LinkType == "远程桌面" ? false : true;
+                    rbtnLinux.Checked = Model.OpType == "Linux" ? true : false;
+                    rbtnWindows.Checked = (Model.OpType == "" || Model.OpType == "Windows") ? true : false;
+                    rbtnSSH.Checked = Model.LinkType == "SSH2" ? true : false;
+                    rbtnRD.Checked = (Model.OpType == "" || Model.OpType == "远程桌面") ? true : false;
                 }
             }
         }

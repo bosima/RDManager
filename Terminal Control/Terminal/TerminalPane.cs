@@ -1426,6 +1426,17 @@ namespace Poderosa.Terminal
         protected override void OnGotFocus(EventArgs args)
         {
             base.OnGotFocus(args);
+
+            //if (!_fakeVisible) return;
+
+            //if (_tag != null)
+            //{
+            //    GEnv.Frame.ActivateConnection(_tag);
+            //    if (!_caretTimer.Enabled) _caretTimer.Start();
+
+            //    if (_selectionKeyProcessor != null) GEnv.Frame.SetSelectionStatus(SelectionStatus.Free);
+            //    else if (_autoSelectionMode) GEnv.Frame.SetSelectionStatus(SelectionStatus.Auto);
+            //}
         }
 
         protected void PostOnGotFocus()

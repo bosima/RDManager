@@ -103,6 +103,7 @@ namespace WalburySoftware
                 GApp.Options.TextColor = this.ForeColor;
                 GApp.Options.RightButtonAction = RightButtonAction.Paste;
                 GApp.Options.AutoCopyByLeftButton = true;
+                //GApp.Options.WarningOption = WarningOption.Ignore;
                 GApp.Options.Font = this.Font;
                 GApp._frame._multiPaneControl.InitUI(null, GApp.Options);
                 GEnv.InterThreadUIService.MainFrameHandle = GApp._frame.Handle;
@@ -343,6 +344,7 @@ namespace WalburySoftware
             if (this._terminalPane != null)
             {
                 this._terminalPane.Focus();
+                this._terminalPane.Select();
             }
         }
         #endregion
