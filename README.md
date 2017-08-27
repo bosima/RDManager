@@ -15,9 +15,7 @@ SSH功能来源于 https://github.com/DavidFlamini/terminalcontrol，而这个�
 
 poderosa已经有新的版本，功能更完善强大，如需了解，看这里：https://github.com/poderosaproject/poderosa。
 
-3）
-
-看看能不能增加一个SFTP的功能...
+3）看看能不能增加一个SFTP的功能...
 
 就完美了。
 
