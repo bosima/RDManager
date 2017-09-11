@@ -1,3 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <rds>
+  <seckey>202cb962ac59075b964b07152d234b70</seckey>
+  <inittm>144249887</inittm>
+  <pass>KCuEl8q7pZ4=</pass>
+  <server id="79c86d91-a940-431f-afaa-17aec6869b83" name="10.250.5.225" address="10.250.5.225" port="22" username="root" password="1aO/Zc4ByrN7xL9ifDlEvQ5HZDIhwX6opHM9/cYk1Zk=" optype="Linux" linktype="SSH2" />
 </rds>

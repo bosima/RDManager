@@ -36,7 +36,6 @@
   <PropertyGroup>
     <ApplicationIcon>mycomputer1_72px.ico</ApplicationIcon>
   </PropertyGroup>
- 
   <ItemGroup>
     <Reference Include="AxMSTSCLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\AxMSTSCLib.dll</HintPath>
@@ -46,6 +45,9 @@
       <HintPath>packages\MSTSCLib.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Renci.SshNet">
+      <HintPath>..\packages\Renci.SshNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -60,7 +62,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DAL\RDSDataManager.cs" />
+    <Compile Include="DirectoryNameEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DirectoryNameEditForm.Designer.cs">
+      <DependentUpon>DirectoryNameEditForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Ext\EncryptUtils.cs" />
+    <Compile Include="Ext\FileIconUtil.cs" />
+    <Compile Include="Ext\FileOperationUtil.cs" />
+    <Compile Include="Ext\ListViewSort.cs" />
     <Compile Include="GroupEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -85,10 +96,12 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Model\FileTreeNode.cs" />
     <Compile Include="Model\RDSDataNode.cs" />
     <Compile Include="Model\RDSGroup.cs" />
     <Compile Include="Model\RDSServer.cs" />
     <Compile Include="Ext\MsRdpClientNonScriptableWrapper.cs" />
+    <Compile Include="Model\SFTPProcessStatus.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerEditForm.cs">
@@ -97,8 +110,21 @@
     <Compile Include="ServerEditForm.Designer.cs">
       <DependentUpon>ServerEditForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="WindowLongFlags.cs" />
-    <Compile Include="WindowStyles.cs" />
+    <Compile Include="SFTPForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SFTPForm.Designer.cs">
+      <DependentUpon>SFTPForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SSHControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SSHControl.Designer.cs">
+      <DependentUpon>SSHControl.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="DirectoryNameEditForm.resx">
+      <DependentUpon>DirectoryNameEditForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="GroupEditForm.resx">
       <DependentUpon>GroupEditForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -122,6 +148,12 @@
     </Compile>
     <EmbeddedResource Include="ServerEditForm.resx">
       <DependentUpon>ServerEditForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SFTPForm.resx">
+      <DependentUpon>SFTPForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SSHControl.resx">
+      <DependentUpon>SSHControl.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

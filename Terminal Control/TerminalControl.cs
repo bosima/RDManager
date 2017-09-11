@@ -44,6 +44,7 @@ namespace WalburySoftware
         private int _port = 22;
         private TerminalPane _terminalPane;
         private Label statusText;
+        private bool _isConnecting = false;
         #endregion
 
         #region Constructors
@@ -78,7 +79,13 @@ namespace WalburySoftware
 
         public void Connect()
         {
-            // TODO:先判断连接状态
+            // 先判断连接状态
+            if (IsConnected || _isConnecting)
+            {
+                return;
+            }
+
+            _isConnecting = true;
 
             if (statusText == null)
             {
@@ -123,55 +130,75 @@ namespace WalburySoftware
                 CommunicationUtil.SilentClient s = new CommunicationUtil.SilentClient();
                 Size sz = this.Size;
                 SocketWithTimeout swt = new SSHConnector(sshp, sz, sshp.Passphrase, null);
-                swt.AsyncConnect(s, sshp.Host, sshp.Port);
-                ConnectionTag ct = s.Wait(swt);
-
-                if (ct == null)
+                swt.AsyncConnect(s, sshp.Host, sshp.Port, (ct, errorMessage) =>
                 {
-                    var errMsg = s.GetErrorMessage();
-                    statusText.Text = "连接异常：" + errMsg;
-                    return;
-                }
-
-                if (this._terminalPane == null)
-                {
-                    this._terminalPane = new TerminalPane();
-                }
-                else
-                {
-                    this._terminalPane.Detach();
-                }
-
-                this._terminalPane.Dock = DockStyle.Fill;
-                this._terminalPane.ForeColor = this.ForeColor;
-                this._terminalPane.BackColor = this.BackColor;
-                this._terminalPane.FakeVisible = true;
-                this._terminalPane.Attach(ct);
-                ct.Receiver.Listen();
-
-                if (this._terminalPane.Connection != null)
-                {
-                    statusText.Visible = false;
-                    this.Controls.Add(this._terminalPane);
-
-                    if (this._terminalPane.Connection != null)
+                    if (ct == null)
                     {
-                        this._terminalPane.Connection.ClosedEvent += Connection_ClosedEvent;
+                        statusText.Invoke(new Action(() =>
+                        {
+                            statusText.Text = "连接异常：" + errorMessage;
+                        }));
+
+                        return;
                     }
 
-                    OnConnected?.Invoke(this, new EventArgs());
-                }
-                else
-                {
-                    statusText.Visible = true;
-                    statusText.Text = "连接已断开";
-
-                    OnDisconnected?.Invoke(this, new EventArgs());
-                }
+                    if (this._terminalPane == null)
+                    {
+                        this.Invoke(new Action(() =>
+                        {
+                            this._terminalPane = new TerminalPane();
+                            InitTerminalPane(ct);
+                        }));
+                    }
+                    else
+                    {
+                        this._terminalPane.Invoke(new Action(() =>
+                        {
+                            this._terminalPane.Detach();
+                            InitTerminalPane(ct);
+                        }));
+                    }
+                });
             }
             catch (Exception ex)
             {
+                statusText.Text = "连接异常：" + ex.Message;
                 return;
+            }
+
+            _isConnecting = false;
+        }
+
+        private void InitTerminalPane(ConnectionTag ct)
+        {
+            this._terminalPane.Dock = DockStyle.Fill;
+            this._terminalPane.ForeColor = this.ForeColor;
+            this._terminalPane.BackColor = this.BackColor;
+            this._terminalPane.FakeVisible = true;
+            this._terminalPane.Attach(ct);
+            ct.Receiver.Listen();
+
+            if (this._terminalPane.Connection != null)
+            {
+
+                statusText.Visible = false;
+
+                this.Controls.Add(this._terminalPane);
+
+                if (this._terminalPane.Connection != null)
+                {
+                    this._terminalPane.Connection.ClosedEvent += Connection_ClosedEvent;
+                }
+
+                OnConnected?.Invoke(this, new EventArgs());
+            }
+            else
+            {
+
+                statusText.Visible = true;
+                statusText.Text = "连接已断开";
+
+                OnDisconnected?.Invoke(this, new EventArgs());
             }
         }
 

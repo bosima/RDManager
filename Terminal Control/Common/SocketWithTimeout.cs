@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
+using Poderosa.Connection;
 
 namespace Poderosa.Communication
 {
@@ -37,6 +38,20 @@ namespace Poderosa.Communication
 
             UI.UILibUtil.CreateThread(new ThreadStart(this.Run)).Start();
         }
+
+        public void AsyncConnect(ISocketWithTimeoutClient client, string host, int port, Action<ConnectionTag, string> connectResultProcess)
+        {
+            _async = true;
+            _client = client;
+            _event = null;
+            _host = host;
+            _port = port;
+            _socks = null;
+            _connectResultProcess = connectResultProcess;
+
+            UI.UILibUtil.CreateThread(new ThreadStart(this.Run)).Start();
+        }
+
         public void AsyncConnect(ISocketWithTimeoutClient client, Socks socks)
         {
             _async = true;
@@ -52,9 +67,21 @@ namespace Poderosa.Communication
             if (!_interrupted)
             {
                 if (_succeeded)
+                {
                     _client.SuccessfullyExit(this.Result);
+                    if (_connectResultProcess != null)
+                    {
+                        _connectResultProcess.Invoke((ConnectionTag)this.Result, null);
+                    }
+                }
                 else
+                {
                     _client.ConnectionFailed(_errorMessage);
+                    if (_connectResultProcess != null)
+                    {
+                        _connectResultProcess.Invoke(null, _errorMessage);
+                    }
+                }
             }
         }
 
@@ -82,6 +109,7 @@ namespace Poderosa.Communication
         protected Socket _socket;
         protected string _host;
         protected int _port;
+        protected Action<ConnectionTag, string> _connectResultProcess;
 
         protected bool _async;
         protected bool _succeeded;

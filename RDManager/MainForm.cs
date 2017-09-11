@@ -12,7 +12,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using WalburySoftware;
 
 namespace RDManager
 {
@@ -110,7 +109,7 @@ namespace RDManager
             var panel = (Panel)sender;
             if (panel != null && panel.Controls != null && panel.Controls.Count > 0)
             {
-                if (panel.Controls[0] is TerminalControl)
+                if (panel.Controls[0] is SSHControl)
                 {
                     panel.Controls[0].Focus();
                 }
@@ -151,39 +150,30 @@ namespace RDManager
         private void ConnectSSH(RDSServer server)
         {
             var parent = currentRDPanel;
-            TerminalControl console = null;
+            SSHControl ssh = null;
 
             if (parent.HasChildren)
             {
-                console = (TerminalControl)currentRDPanel.Controls[0];
-                console.Tag = server.ServerID.ToString();
-                console.UserName = server.UserName;
-                console.Password = EncryptUtils.DecryptServerPassword(server);
-                console.Host = server.ServerAddress;
-                console.Port = server.ServerPort;
+                ssh = (SSHControl)currentRDPanel.Controls[0];
+                ssh.Tag = server.ServerID.ToString();
 
-                if (!console.IsConnected)
+                if (!ssh.IsConnected)
                 {
-                    console.Connect();
-                    console.Focus();
+                    ssh.Connect();
+                    ssh.Focus();
                 }
             }
             else
             {
-                console = new TerminalControl(server.UserName, EncryptUtils.DecryptServerPassword(server), server.ServerAddress, server.ServerPort);
-                console.Tag = server.ServerID.ToString();
-                console.Width = this.splitContainer1.Panel2.Width;
-                console.Height = this.splitContainer1.Panel2.Height;
-                console.BackColor = System.Drawing.Color.Teal;
-                console.ForeColor = System.Drawing.Color.Snow;
-                console.Dock = System.Windows.Forms.DockStyle.Fill;
-                console.Font = new Font("Courier New", 10);
-                console.OnConnected += Ssh_OnConnected;
-                console.OnDisconnected += Ssh_OnDisconnected;
-                parent.Controls.Add(console);
+                ssh = new SSHControl(server);
+                ssh.Tag = server.ServerID.ToString();
+                ssh.Dock = System.Windows.Forms.DockStyle.Fill;
+                ssh.OnConnected += Ssh_OnConnected;
+                ssh.OnDisconnected += Ssh_OnDisconnected;
+                parent.Controls.Add(ssh);
 
-                console.Connect();
-                console.Focus();
+                ssh.Connect();
+                ssh.Focus();
             }
         }
 
@@ -307,7 +297,7 @@ namespace RDManager
         /// <param name="e"></param>
         private void Ssh_OnConnected(object sender, EventArgs e)
         {
-            var rdp = (TerminalControl)sender;
+            var rdp = (SSHControl)sender;
             var nodeId = rdp.Tag.ToString();
             var node = (RDSDataNode)FindNode(nodeId, serverTree.Nodes[0]);
 
@@ -322,7 +312,7 @@ namespace RDManager
         /// <param name="e"></param>
         private void Ssh_OnDisconnected(object sender, EventArgs e)
         {
-            var rdp = (TerminalControl)sender;
+            var rdp = (SSHControl)sender;
             var nodeId = rdp.Tag.ToString();
             var node = (RDSDataNode)FindNode(nodeId, serverTree.Nodes[0]);
 
@@ -402,6 +392,33 @@ namespace RDManager
                             rdp.Focus();
                             ocx.SendKeys(ints.Length, ref bools[0], ref ints[0]);
                         }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 断开Panel连接
+        /// </summary>
+        /// <param name="rdpPanel"></param>
+        private void DisconnectPanel(Panel rdpPanel)
+        {
+            if (rdpPanel != null && rdpPanel.Controls != null && rdpPanel.Controls.Count > 0)
+            {
+                if (rdpPanel.Controls[0] is SSHControl)
+                {
+                    var console = (SSHControl)rdpPanel.Controls[0];
+                    if (console.IsConnected)
+                    {
+                        console.Disconnect();
+                    }
+                }
+                else
+                {
+                    var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)rdpPanel.Controls[0];
+                    if (rdp.Connected > 0)
+                    {
+                        rdp.Disconnect();
                     }
                 }
             }
@@ -518,7 +535,7 @@ namespace RDManager
             if (treeNode != null)
             {
                 treeNode.Checked = true;
-         
+
                 var node = (RDSDataNode)treeNode;
                 currentTreeNode = node;
 
@@ -969,7 +986,6 @@ namespace RDManager
                 }
             }
         }
-
         #endregion
 
         #region Split操作
@@ -979,9 +995,9 @@ namespace RDManager
             {
                 if (currentRDPanel.HasChildren)
                 {
-                    if (currentRDPanel.Controls[0] is TerminalControl)
+                    if (currentRDPanel.Controls[0] is SSHControl)
                     {
-                        var console = (TerminalControl)currentRDPanel.Controls[0];
+                        var console = (SSHControl)currentRDPanel.Controls[0];
                         console.Width = this.splitContainer1.Panel2.Width;
                         console.Height = this.splitContainer1.Panel2.Height;
                     }
@@ -1001,6 +1017,10 @@ namespace RDManager
             DoCloseForm(e);
         }
 
+        /// <summary>
+        /// 执行关闭窗口
+        /// </summary>
+        /// <param name="e"></param>
         private void DoCloseForm(FormClosingEventArgs e)
         {
             if (rdPanelDictionary.Count > 0)
@@ -1009,29 +1029,6 @@ namespace RDManager
                 {
                     var rdpPanel = rdPanelDictionary[key];
                     DisconnectPanel(rdpPanel);
-                }
-            }
-        }
-
-        private void DisconnectPanel(Panel rdpPanel)
-        {
-            if (rdpPanel != null && rdpPanel.Controls != null && rdpPanel.Controls.Count > 0)
-            {
-                if (rdpPanel.Controls[0] is TerminalControl)
-                {
-                    var console = (TerminalControl)rdpPanel.Controls[0];
-                    if (console.IsConnected)
-                    {
-                        console.Disconnect();
-                    }
-                }
-                else
-                {
-                    var rdp = (AxMSTSCLib.AxMsRdpClient9NotSafeForScripting)rdpPanel.Controls[0];
-                    if (rdp.Connected > 0)
-                    {
-                        rdp.Disconnect();
-                    }
                 }
             }
         }
