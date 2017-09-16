@@ -72,6 +72,10 @@
     <Compile Include="Ext\FileIconUtil.cs" />
     <Compile Include="Ext\FileOperationUtil.cs" />
     <Compile Include="Ext\ListViewSort.cs" />
+    <Compile Include="Ext\MaskLayerControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Ext\SystemIconUtil.cs" />
     <Compile Include="GroupEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -101,6 +105,7 @@
     <Compile Include="Model\RDSGroup.cs" />
     <Compile Include="Model\RDSServer.cs" />
     <Compile Include="Ext\MsRdpClientNonScriptableWrapper.cs" />
+    <Compile Include="Model\SFTPProcessException.cs" />
     <Compile Include="Model\SFTPProcessStatus.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

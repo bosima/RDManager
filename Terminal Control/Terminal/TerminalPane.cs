@@ -99,7 +99,7 @@ namespace Poderosa.Terminal
             // 
             InitializeComponent();
 
-            // TODO: InitForm
+
             SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer, true);
 
             _caretTimer = new System.Windows.Forms.Timer();
@@ -268,11 +268,11 @@ namespace Poderosa.Terminal
                 GLine t = document.CurrentLine.PrevLine;
                 if (t != null && t.ID >= GEnv.TextSelection.HeadPoint._line)
                 {
-                    GEnv.TextSelection.ExpandTo(t, GetConnection().TerminalWidth - 1, RangeType.Line); 
+                    GEnv.TextSelection.ExpandTo(t, GetConnection().TerminalWidth - 1, RangeType.Line);
                     //Debug.WriteLine(String.Format("ExpandTo {0}:{1}-{2}:{3}", GEnv.TextSelection.HeadPoint._line, GEnv.TextSelection.HeadPoint._position, GEnv.TextSelection.TailPoint._line, GEnv.TextSelection.TailPoint._position)); 
                 }
                 else
-                    GEnv.TextSelection.DisableTemporary(); 
+                    GEnv.TextSelection.DisableTemporary();
             }
 
             //Debug.WriteLine(String.Format("v={0} l={1} m={2}", _VScrollBar.Value, _VScrollBar.LargeChange, _VScrollBar.Maximum));
@@ -435,7 +435,7 @@ namespace Poderosa.Terminal
             catch (Exception ex)
             {
                 if (!_criticalErrorRaised)
-                { 
+                {
                     _criticalErrorRaised = true;
                     GUtil.ReportCriticalError(ex);
                 }
@@ -443,7 +443,7 @@ namespace Poderosa.Terminal
         }
         private void BuildTransientDocument(PaintEventArgs e, ArrayList lines, ref RenderParameter param, ref bool caret, ref int caret_pos_x, ref int caret_pos_y)
         {
-            if (_tag == null) return; 
+            if (_tag == null) return;
 
             Rectangle clip = e.ClipRectangle;
             TerminalDocument document = _tag.Document;
@@ -471,9 +471,9 @@ namespace Poderosa.Terminal
                 l = document.FindLineOrNull(from._line);
                 GLine t = document.FindLineOrNull(to._line);
                 if (l != null && t != null)
-                { 
+                {
                     t = t.NextLine;
-                    int pos = from._position; 
+                    int pos = from._position;
                     do
                     {
                         int index = l.ID - document.TopLineNumber;
@@ -493,7 +493,7 @@ namespace Poderosa.Terminal
                                 document.InvalidateLine(l.ID);
                             }
                         }
-                        pos = 0; 
+                        pos = 0;
                         l = l.NextLine;
                     } while (l != t);
                 }
@@ -507,7 +507,7 @@ namespace Poderosa.Terminal
                 caret_pos_y = _selectionKeyProcessor.CurrentLine.ID - document.TopLineNumber;
                 if (caret_pos_y >= 0 && caret_pos_y < GetConnection().TerminalHeight && caret_pos_y < lines.Count)
                     caret_line = (GLine)lines[caret_pos_y];
-                if (_caretState == 1) caret = false; 
+                if (_caretState == 1) caret = false;
             }
             else
             {
@@ -1221,7 +1221,7 @@ namespace Poderosa.Terminal
 
         private void OnCaretTimer(object sender, EventArgs args)
         {
-            if (_tag == null || _inIMEComposition) return; 
+            if (_tag == null || _inIMEComposition) return;
 
             if (++_caretState == 2) _caretState = 0;
 
@@ -1257,7 +1257,7 @@ namespace Poderosa.Terminal
         }
         public void ApplyOptions(CommonOptions opt)
         {
-            if (_tag != null && _tag.RenderProfile != null) return; 
+            if (_tag != null && _tag.RenderProfile != null) return;
             ApplyRenderProfile(new RenderProfile(opt));
         }
         public void ApplyRenderProfile(RenderProfile prof)
@@ -1278,7 +1278,7 @@ namespace Poderosa.Terminal
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             if (_tag != null && !GEnv.Options.AllowsScrollInAppMode && _tag.Terminal.TerminalMode == TerminalMode.Application && _selectionKeyProcessor == null)
-            { 
+            {
                 int m = GEnv.Options.WheelAmount;
                 for (int i = 0; i < m; i++)
                     ProcessSequenceKey(Keys.None, e.Delta > 0 ? Keys.Up : Keys.Down);

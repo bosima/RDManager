@@ -99,7 +99,6 @@ namespace Poderosa.Forms {
 			this.Text = GApp.Strings.GetString("Form.SerialLoginDialog.Text");
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			InitUI();
 		}

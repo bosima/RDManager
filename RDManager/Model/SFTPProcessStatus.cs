@@ -7,11 +7,13 @@ using System.Windows.Forms;
 namespace RDManager.Model
 {
     /// <summary>
-    /// SFTP传输处理状态
+    /// SFTP传输处理任务
     /// </summary>
-    public class SFTPProcessStatus
+    public class SFTPProcessTask
     {
         public Guid ID { get; set; }
+        public string PathType { get; set; }
+        public string FileName { get; set; }
         public string SourcePath { get; set; }
         public string SourceFilePath { get; set; }
         public string DestPath { get; set; }

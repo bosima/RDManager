@@ -45,7 +45,6 @@ namespace Poderosa.Forms
 			this._okButton.Text = GApp.Strings.GetString("Common.OK");
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			Init();
 		}

@@ -49,7 +49,6 @@ namespace Poderosa.Forms
 			this.Text = GApp.Strings.GetString("Form.ChangeLog.Text");
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			_connection = current;
 			_logTypeBox.SelectedIndex = _logTypeBox.FindStringExact(EnumDescAttributeT.For(typeof(LogType)).GetDescription(_connection.LogType));

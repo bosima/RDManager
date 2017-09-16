@@ -34,7 +34,6 @@ namespace Poderosa.Forms
 			InitializeComponent();
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			_messageLabel.Text = message;
 			this.Text = GEnv.Strings.GetString("Form.WarningWithDisableOption.Text");

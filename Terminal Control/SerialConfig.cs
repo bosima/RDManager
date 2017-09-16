@@ -55,7 +55,6 @@ namespace Poderosa.Forms
 			InitializeComponent();
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			this._portLabel.Text = GApp.Strings.GetString("Form.SerialConfig._portLabel");
 			this._baudRateLabel.Text = GApp.Strings.GetString("Form.SerialConfig._baudRateLabel");

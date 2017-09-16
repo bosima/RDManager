@@ -53,7 +53,6 @@ namespace Poderosa.Forms
 			// この呼び出しは、Windows.Forms フォーム デザイナで必要です。
 			InitializeComponent();
 
-			// TODO: InitForm を呼び出しの後に初期化処理を追加します。
 
 		}
 

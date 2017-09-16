@@ -103,11 +103,11 @@ namespace RDManager
             IntPtr hI;
             if (isLargeIcon)
             {
-                hI = SHGetFileInfo(fileExt, 0, ref shfi, (uint)Marshal.SizeOf(shfi), (uint)FileInfoFlags.SHGFI_ICON | (uint)FileInfoFlags.SHGFI_USEFILEATTRIBUTES | (uint)FileInfoFlags.SHGFI_LARGEICON);
+                hI = SHGetFileInfo(fileExt, 0, ref shfi, (uint)Marshal.SizeOf(shfi), (uint)FileInfoFlags.SHGFI_ICON | (uint)FileInfoFlags.SHGFI_SHELLICONSIZE | (uint)FileInfoFlags.SHGFI_USEFILEATTRIBUTES | (uint)FileInfoFlags.SHGFI_LARGEICON);
             }
             else
             {
-                hI = SHGetFileInfo(fileExt, 0, ref shfi, (uint)Marshal.SizeOf(shfi), (uint)FileInfoFlags.SHGFI_ICON | (uint)FileInfoFlags.SHGFI_USEFILEATTRIBUTES | (uint)FileInfoFlags.SHGFI_SMALLICON);
+                hI = SHGetFileInfo(fileExt, 0, ref shfi, (uint)Marshal.SizeOf(shfi), (uint)FileInfoFlags.SHGFI_ICON | (uint)FileInfoFlags.SHGFI_SHELLICONSIZE | (uint)FileInfoFlags.SHGFI_USEFILEATTRIBUTES | (uint)FileInfoFlags.SHGFI_SMALLICON);
             }
             Icon icon = Icon.FromHandle(shfi.hIcon).Clone() as Icon;
             DestroyIcon(shfi.hIcon); //释放资源  
@@ -124,16 +124,16 @@ namespace RDManager
             IntPtr _IconIntPtr;
             if (isLargeIcon)
             {
-                _IconIntPtr = SHGetFileInfo(@"", 0, ref _FileInfomation, (uint)Marshal.SizeOf(_FileInfomation), ((uint)FileInfoFlags.SHGFI_ICON | (uint)FileInfoFlags.SHGFI_LARGEICON));
+                _IconIntPtr = SHGetFileInfo(@"", (int)FileAttributeFlags.FILE_ATTRIBUTE_DIRECTORY, ref _FileInfomation, (uint)Marshal.SizeOf(_FileInfomation), ((uint)FileInfoFlags.SHGFI_ICON | (uint)FileInfoFlags.SHGFI_SHELLICONSIZE | (uint)FileInfoFlags.SHGFI_LARGEICON));
             }
             else
             {
-                _IconIntPtr = SHGetFileInfo(@"", 0, ref _FileInfomation, (uint)Marshal.SizeOf(_FileInfomation), ((uint)FileInfoFlags.SHGFI_ICON | (uint)FileInfoFlags.SHGFI_SMALLICON));
+                _IconIntPtr = SHGetFileInfo(@"", (int)FileAttributeFlags.FILE_ATTRIBUTE_DIRECTORY, ref _FileInfomation, (uint)Marshal.SizeOf(_FileInfomation), ((uint)FileInfoFlags.SHGFI_ICON | (uint)FileInfoFlags.SHGFI_SHELLICONSIZE | (uint)FileInfoFlags.SHGFI_SMALLICON));
             }
             if (_IconIntPtr.Equals(IntPtr.Zero))
                 return null;
-            Icon _Icon = System.Drawing.Icon.FromHandle(_FileInfomation.hIcon);
-            //DestroyIcon(_FileInfomation.hIcon); //释放资源  
+            Icon _Icon = System.Drawing.Icon.FromHandle(_FileInfomation.hIcon).Clone() as Icon;
+            DestroyIcon(_FileInfomation.hIcon); //释放资源  
             return _Icon;
         }
 
@@ -175,7 +175,7 @@ namespace RDManager
             else
                 uFlags |= FileInfoFlags.SHGFI_LARGEICON;
 
-            int iTotal = (int)SHGetFileInfo(driverName, (uint)FileAttributeFlags.FILE_ATTRIBUTE_NORMAL, ref shfi, (uint)Marshal.SizeOf(shfi), (uint)uFlags);
+            int iTotal = (int)SHGetFileInfo(driverName, (uint)FileAttributeFlags.FILE_ATTRIBUTE_DEVICE, ref shfi, (uint)Marshal.SizeOf(shfi), (uint)uFlags);
 
             Icon icon = null;
             if (iTotal > 0)

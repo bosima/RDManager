@@ -26,7 +26,6 @@ namespace Poderosa
 			InitializeComponent();
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 		}
 

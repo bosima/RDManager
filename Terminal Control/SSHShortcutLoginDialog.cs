@@ -76,7 +76,6 @@ namespace Poderosa.Forms
 			this._loginButton.Text = GApp.Strings.GetString("Common.OK");
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			_terminalParam = param;
 			InitUI();

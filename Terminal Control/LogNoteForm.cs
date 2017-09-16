@@ -34,7 +34,6 @@ namespace Poderosa.Forms
 			InitializeComponent();
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			this._okButton.Text = GApp.Strings.GetString("Common.OK");
 			this._cancelButton.Text = GApp.Strings.GetString("Common.Cancel");

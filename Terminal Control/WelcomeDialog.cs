@@ -129,7 +129,6 @@ namespace Poderosa.Forms
 			InitializeComponent();
 			InitializeText();
 			// 
-			// TODO: コンストラクタ ロジックをここに追加してください。
 			//
 			_checkNext.Checked = GApp.Options.ShowWelcomeDialog;
 		}

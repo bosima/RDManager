@@ -38,7 +38,6 @@ namespace Poderosa.Forms
 			InitializeComponent();
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			this._nameLabel.Text = GApp.Strings.GetString("Form.EditEnvVariable._nameLabel");
 			this._valueLabel.Text = GApp.Strings.GetString("Form.EditEnvVariable._valueLabel");

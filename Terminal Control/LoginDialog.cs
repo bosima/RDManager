@@ -90,7 +90,6 @@ namespace Poderosa.Forms
 			InitializeText();
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			InitializeLoginParams();
 			_initializing = false;

@@ -69,7 +69,6 @@ namespace Poderosa.Forms
 			this.Text = GApp.Strings.GetString("Form.MacroList.Text");
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			InitUI();
 

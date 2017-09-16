@@ -42,7 +42,6 @@ namespace Poderosa.Forms
 			InitializeComponent();
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			this._lKeyFile.Text = GApp.Strings.GetString("Form.ChangePassphrase._lKeyFile");
 			this._lCurrentPassphrase.Text = GApp.Strings.GetString("Form.ChangePassphrase._lCurrentPassphrase");

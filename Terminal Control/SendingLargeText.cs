@@ -44,7 +44,6 @@ namespace Poderosa.Forms
 			InitializeComponent();
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			this.Text = GApp.Strings.GetString("Form.SendingLargeText.Text");
 			this._cancelButton.Text = GApp.Strings.GetString("Common.Cancel");

@@ -64,7 +64,6 @@ namespace Poderosa.Forms
 			InitializeComponent();
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			_colorBoxes = new ColorButton[8];
 			_backColor = back;

@@ -66,7 +66,6 @@ namespace Poderosa.Forms
 			this.Text = GApp.Strings.GetString("Form.EditRenderProfile.Text");
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			_profile = new RenderProfile(prof==null? GEnv.DefaultRenderProfile : prof);
 			InitUI();

@@ -35,7 +35,6 @@ namespace Poderosa.Forms
 			_okButton.Text = GApp.Strings.GetString("Common.OK");
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			//AboutBoxから借りる
 			System.Resources.ResourceManager resources = new System.Resources.ResourceManager(typeof(AboutBox));

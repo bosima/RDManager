@@ -54,7 +54,6 @@ namespace Poderosa.Forms {
 			InitializeComponent();
 
 			//
-			// TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
 			//
 			Color c = SystemColors.Control;
 			_activeTabColor = Color.FromArgb((c.R+255)/2, (c.G+255)/2, (c.B+255)/2); //白との中間をとる

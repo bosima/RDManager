@@ -60,7 +60,7 @@ namespace Poderosa.Forms
 			ReloadLanguage(GEnv.Options.Language);
 
 			_toolTipInitialized = false;
-			// TODO: InitForm ‚ğŒÄ‚Ño‚µ‚ÌŒã‚É‰Šú‰»ˆ—‚ğ’Ç‰Á‚µ‚Ü‚·B
+		
 			LoadImages();
 		}
 		public void ReloadLanguage(Language l) {
