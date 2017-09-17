@@ -46,8 +46,8 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>packages\MSTSCLib.dll</HintPath>
     </Reference>
-    <Reference Include="Renci.SshNet, Version=2016.0.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
-      <HintPath>..\packages\SSH.NET.2016.0.0\lib\net40\Renci.SshNet.dll</HintPath>
+    <Reference Include="Renci.SshNet">
+      <HintPath>packages\Renci.SshNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -173,8 +173,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="mycomputer1_72px.ico" />
-    <Content Include="packages\AxMSTSCLib.dll" />
-    <Content Include="packages\MSTSCLib.dll" />
+    <Content Include="packages\AxMSTSCLib.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="packages\MSTSCLib.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="packages\Renci.SshNet.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="packages\Renci.SshNet.xml" />
     <Content Include="rds.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
