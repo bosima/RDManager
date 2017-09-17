@@ -46,7 +46,8 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>packages\MSTSCLib.dll</HintPath>
     </Reference>
-    <Reference Include="Renci.SshNet">
+    <Reference Include="Renci.SshNet, Version=2016.1.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>packages\Renci.SshNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -160,7 +161,6 @@
     <EmbeddedResource Include="SSHControl.resx">
       <DependentUpon>SSHControl.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
