@@ -42,12 +42,12 @@
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="MSTSCLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\MSTSCLib.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>packages\MSTSCLib.dll</HintPath>
     </Reference>
-    <Reference Include="Renci.SshNet">
-      <HintPath>..\packages\Renci.SshNet.dll</HintPath>
+    <Reference Include="Renci.SshNet, Version=2016.0.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
+      <HintPath>..\packages\SSH.NET.2016.0.0\lib\net40\Renci.SshNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -160,6 +160,7 @@
     <EmbeddedResource Include="SSHControl.resx">
       <DependentUpon>SSHControl.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -175,7 +176,7 @@
     <Content Include="packages\AxMSTSCLib.dll" />
     <Content Include="packages\MSTSCLib.dll" />
     <Content Include="rds.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

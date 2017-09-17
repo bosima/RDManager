@@ -1050,7 +1050,7 @@ namespace RDManager
         /// <param name="e"></param>
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("萤火虫远程桌面管理工具 v1.0", "关于", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("萤火虫远程终端管理工具 v2.0", "关于", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>

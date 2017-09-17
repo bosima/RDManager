@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("RDManager")]
-[assembly: AssemblyDescription("Windows远程桌面管理工具")]
+[assembly: AssemblyDescription("萤火虫远程终端管理工具")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("FireflySoft.NET")]
 [assembly: AssemblyProduct("RDManager")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 //可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值，
 // 方法是按如下所示使用“*”: :
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyFileVersion("2.0.0.0")]
