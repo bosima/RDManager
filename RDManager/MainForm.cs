@@ -22,13 +22,40 @@ namespace RDManager
         private Dictionary<string, Panel> rdPanelDictionary;
         private ContextMenuStrip rightButtonMenu;
         const int scrollRegion = 25;
+        private System.Threading.Timer noOperatorCountTimer;
 
         [DllImport("user32.dll")]
         private static extern int SendMessage(IntPtr hWnd, int wMsg, int wParam, int lParam);
 
+        static int iOperCount = 0;
+
         public MainForm()
         {
             InitializeComponent();
+
+            OperateMessageFilter msg = new OperateMessageFilter();
+            Application.AddMessageFilter(msg);
+            noOperatorCountTimer = new System.Threading.Timer(new System.Threading.TimerCallback(state =>
+              {
+                  iOperCount++;
+                  if (iOperCount > 450)
+                  {
+                      Application.Exit();
+                  }
+              }), null, 10000, 2000);
+        }
+
+        private class OperateMessageFilter : IMessageFilter
+        {
+            public bool PreFilterMessage(ref Message m)
+            {
+                if (m.Msg == 0x0200 || m.Msg == 0x0201 || m.Msg == 0x0204 || m.Msg == 0x0207)
+                {
+                    iOperCount = 0;
+                }
+
+                return false;
+            }
         }
 
         protected override void OnLoad(EventArgs e)
@@ -83,7 +110,8 @@ namespace RDManager
             {
                 rdPanel = rdPanelDictionary[panelID];
             }
-            else
+
+            if (rdPanel == null)
             {
                 rdPanel = new Panel();
                 rdPanel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -273,6 +301,14 @@ namespace RDManager
 
             node.ImageIndex = 1;
             node.SelectedImageIndex = 1;
+
+            if (rdp.Parent != null)
+            {
+                string panelName = rdp.Parent.Name;
+                rdp.Parent.Dispose();
+                rdp.Parent = null;
+                rdPanelDictionary.Remove(panelName);
+            }
         }
 
         /// <summary>
@@ -318,6 +354,14 @@ namespace RDManager
 
             node.ImageIndex = 1;
             node.SelectedImageIndex = 1;
+
+            if (rdp.Parent != null)
+            {
+                string panelName = rdp.Parent.Name;
+                rdp.Parent.Dispose();
+                rdp.Parent = null;
+                rdPanelDictionary.Remove(panelName);
+            }
         }
 
         /// <summary>
@@ -1025,9 +1069,9 @@ namespace RDManager
         {
             if (rdPanelDictionary.Count > 0)
             {
-                foreach (var key in rdPanelDictionary.Keys)
+                for (int i = 0; i < rdPanelDictionary.Count; i++)
                 {
-                    var rdpPanel = rdPanelDictionary[key];
+                    var rdpPanel = rdPanelDictionary.ElementAt(i).Value;
                     DisconnectPanel(rdpPanel);
                 }
             }

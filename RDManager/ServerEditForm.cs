@@ -46,7 +46,7 @@ namespace RDManager
                     rbtnLinux.Checked = Model.OpType == "Linux" ? true : false;
                     rbtnWindows.Checked = (Model.OpType == "" || Model.OpType == "Windows") ? true : false;
                     rbtnSSH.Checked = Model.LinkType == "SSH2" ? true : false;
-                    rbtnRD.Checked = (Model.OpType == "" || Model.OpType == "远程桌面") ? true : false;
+                    rbtnRD.Checked = (Model.LinkType == "" || Model.LinkType == "远程桌面") ? true : false;
                 }
             }
         }
