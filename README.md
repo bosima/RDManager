@@ -3,11 +3,11 @@ A tool for remote computer manager, surport windows remote desktop and ssh.
 
 这是一个远程计算机管理工具，支持 Windows远程桌面 和 SSH 连接。
 
-![Windows远程桌面](http://img.bossma.cn/windows_20220429145927.jpg)
+![Windows远程桌面](http://rb3bjvmqg.hb-bkt.clouddn.com/windows_20220429145927.jpg)
 
-![SSH Shell](http://img.bossma.cn/windows_20220429145927.jpg)
+![SSH Shell](http://rb3bjvmqg.hb-bkt.clouddn.com/windows_20220429145927.jpg)
 
-![SSH SFTP](http://img.bossma.cn/linux_20220429145940.jpg))
+![SSH SFTP](http://rb3bjvmqg.hb-bkt.clouddn.com/linux_20220429145940.jpg))
 
 1）
 微软的远程桌面团队提供过一个称为Remote Desktop Connection Manager的工具，管理远程桌面那叫一个爽。其最新版本为2.7，可惜在高DPI的环境下，远程桌面的字会比较小，可能是基于WPF，WPF会原样展示远程桌面的分辨率。这个工具还有一个2.2版本，是WinForm开发的，远程桌面连接时不存在字太小的问题，可惜我使用的时候经常莫名的断开连接。
