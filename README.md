@@ -5,11 +5,11 @@ A tool for remote computer manager, surport windows remote desktop and ssh.
 
 # 使用界面
 
-![Windows远程桌面](http://rb3bjvmqg.hb-bkt.clouddn.com/windows_20220429145927.jpg)
+![Windows远程桌面](http://rb3bjvmqg.hb-bkt.clouddn.com/windows_2022042914592711.jpg)
 
-![SSH Shell](http://rb3bjvmqg.hb-bkt.clouddn.com/linux_20220429145940.jpg)
+![SSH Shell](http://rb3bjvmqg.hb-bkt.clouddn.com/linux_2022042914594011.jpg)
 
-![SSH SFTP](http://rb3bjvmqg.hb-bkt.clouddn.com/linux_20220429145908.jpg)
+![SSH SFTP](http://rb3bjvmqg.hb-bkt.clouddn.com/linux_2022042914590811.jpg)
 
 
 # 更多说明
