@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using RDManager.Model;
-using WalburySoftware;
 using System.IO;
 using Renci.SshNet;
 using System.Threading.Tasks;
@@ -52,9 +51,9 @@ namespace RDManager
         {
             get
             {
-                if (this._shell != null)
+                if (this._putty != null)
                 {
-                    return this._shell.IsConnected;
+                    return this._putty.IsConnected;
                 }
 
                 return false;
@@ -111,7 +110,7 @@ namespace RDManager
         /// <summary>
         /// Shell控件
         /// </summary>
-        private TerminalControl _shell;
+        private PuttyControl _putty;
 
         /// <summary>
         /// Shell是否已经连接
@@ -120,9 +119,9 @@ namespace RDManager
         {
             get
             {
-                if (_shell != null)
+                if (_putty != null)
                 {
-                    return _shell.IsConnected;
+                    return _putty.IsConnected;
                 }
 
                 return false;
@@ -135,34 +134,34 @@ namespace RDManager
         /// <param name="server"></param>
         private void ConnectShell()
         {
-            if (_shell != null)
-            {
-                _shell.Tag = _rdsServer.ServerID.ToString();
-                _shell.UserName = _rdsServer.UserName;
-                _shell.Password = EncryptUtils.DecryptServerPassword(_rdsServer);
-                _shell.Host = _rdsServer.ServerAddress;
-                _shell.Port = _rdsServer.ServerPort;
+            string userName = _rdsServer.UserName;
+            string password = EncryptUtils.DecryptServerPassword(_rdsServer);
+            string host = _rdsServer.ServerAddress;
+            int port = _rdsServer.ServerPort;
 
-                if (!_shell.IsConnected)
+            if (_putty != null)
+            {
+                _putty.Tag = _rdsServer.ServerID.ToString();
+                if (!_putty.IsConnected)
                 {
-                    _shell.Connect();
-                    _shell.Focus();
+                    _putty.Connect(host, port, userName, password);
+                    _putty.Focus();
                 }
             }
             else
             {
-                _shell = new TerminalControl(_rdsServer.UserName, EncryptUtils.DecryptServerPassword(_rdsServer), _rdsServer.ServerAddress, _rdsServer.ServerPort);
-                _shell.Tag = _rdsServer.ServerID.ToString();
-                _shell.BackColor = System.Drawing.Color.Teal;
-                _shell.ForeColor = System.Drawing.Color.Snow;
-                _shell.Dock = System.Windows.Forms.DockStyle.Fill;
-                _shell.Font = new Font("Courier New", 10);
-                _shell.OnConnected += Shell_OnConnected;
-                _shell.OnDisconnected += Shell_OnDisconnected;
-                shellTab.Controls.Add(_shell);
+                _putty = new PuttyControl();
+                _putty.Tag = _rdsServer.ServerID.ToString();
+                _putty.Dock = System.Windows.Forms.DockStyle.Fill;
+                //_putty.BackColor = System.Drawing.Color.Teal;
+                //_putty.ForeColor = System.Drawing.Color.Snow;
+                //_putty.Font = new Font("Courier New", 10);
+                _putty.OnConnected += Shell_OnConnected;
+                _putty.OnDisconnected += Shell_OnDisconnected;
+                shellTab.Controls.Add(_putty);
 
-                _shell.Connect();
-                _shell.Focus();
+                _putty.Connect(host, port, userName, password);
+                _putty.Focus();
             }
         }
 
@@ -171,9 +170,9 @@ namespace RDManager
         /// </summary>
         private void DisconnectShell()
         {
-            if (_shell != null && _shell.IsConnected)
+            if (_putty != null && _putty.IsConnected)
             {
-                _shell.Disconnect();
+                _putty.Disconnect();
             }
         }
 
@@ -2355,7 +2354,7 @@ namespace RDManager
         private void UploadFile(SFTPProcessTask task)
         {
             int i = 0;
-            DoUpload:
+        DoUpload:
             try
             {
                 using (var file = File.Open(task.SourceFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -2578,7 +2577,7 @@ namespace RDManager
         private void DownloadFile(SFTPProcessTask task)
         {
             int i = 0;
-            DoDownload:
+        DoDownload:
             try
             {
                 using (var file = File.Open(task.DestFilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))

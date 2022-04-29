@@ -2,14 +2,10 @@
 using RDManager.Model;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
@@ -179,6 +175,8 @@ namespace RDManager
         {
             var parent = currentRDPanel;
             SSHControl ssh = null;
+
+            // todo 先试试看看TCP连接能不能建立
 
             if (parent.HasChildren)
             {
@@ -352,6 +350,21 @@ namespace RDManager
             var nodeId = rdp.Tag.ToString();
             var node = (RDSDataNode)FindNode(nodeId, serverTree.Nodes[0]);
 
+            if (rdp.InvokeRequired)
+            {
+                rdp.Invoke(new Action(() =>
+                {
+                    DoAfterDisconnect(node, rdp);
+                }));
+            }
+            else
+            {
+                DoAfterDisconnect(node, rdp);
+            }
+        }
+
+        private void DoAfterDisconnect(RDSDataNode node, SSHControl rdp)
+        {
             node.ImageIndex = 1;
             node.SelectedImageIndex = 1;
 

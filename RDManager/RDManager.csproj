@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>RDManager</RootNamespace>
     <AssemblyName>RDManager</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -22,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,23 +34,25 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>mycomputer1_72px.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AxMSTSCLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\AxMSTSCLib.dll</HintPath>
+      <HintPath>..\packages\AxMSTSCLib.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="MSTSCLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
-      <HintPath>packages\MSTSCLib.dll</HintPath>
+      <HintPath>..\packages\MSTSCLib.dll</HintPath>
     </Reference>
     <Reference Include="Renci.SshNet, Version=2016.1.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>packages\Renci.SshNet.dll</HintPath>
+      <HintPath>..\packages\Renci.SshNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -110,24 +114,22 @@
     <Compile Include="Model\SFTPProcessStatus.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PuttyControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PuttyControl.Designer.cs">
+      <DependentUpon>PuttyControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="ServerEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ServerEditForm.Designer.cs">
       <DependentUpon>ServerEditForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="SFTPForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SFTPForm.Designer.cs">
-      <DependentUpon>SFTPForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="SSHControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="SSHControl.Designer.cs">
-      <DependentUpon>SSHControl.cs</DependentUpon>
-    </Compile>
+    <Compile Include="SSHControl.Designer.cs" />
     <EmbeddedResource Include="DirectoryNameEditForm.resx">
       <DependentUpon>DirectoryNameEditForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -151,16 +153,16 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="PuttyControl.resx">
+      <DependentUpon>PuttyControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ServerEditForm.resx">
       <DependentUpon>ServerEditForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="SFTPForm.resx">
-      <DependentUpon>SFTPForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SSHControl.resx">
-      <DependentUpon>SSHControl.cs</DependentUpon>
-    </EmbeddedResource>
+    <EmbeddedResource Include="SSHControl.resx" />
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -173,26 +175,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="mycomputer1_72px.ico" />
-    <Content Include="packages\AxMSTSCLib.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="packages\MSTSCLib.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="packages\Renci.SshNet.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="packages\Renci.SshNet.xml" />
     <Content Include="rds.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Terminal Control\Terminal Control.csproj">
-      <Project>{60be1158-c079-4603-8bc4-1658133e8ee5}</Project>
-      <Name>Terminal Control</Name>
-    </ProjectReference>
+    <Content Include="tools\putty.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
