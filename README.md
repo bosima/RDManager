@@ -9,7 +9,7 @@ A tool for remote computer manager, surport windows remote desktop and ssh.
 
 ![SSH Shell](http://rb3bjvmqg.hb-bkt.clouddn.com/linux_20220429145940.jpg)
 
-![SSH SFTP](http://rb3bjvmqg.hb-bkt.clouddn.com/linux_20220429145908.jpg))
+![SSH SFTP](http://rb3bjvmqg.hb-bkt.clouddn.com/linux_20220429145908.jpg)
 
 
 # 更多说明
