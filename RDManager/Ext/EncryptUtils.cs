@@ -1,11 +1,14 @@
-﻿using RDManager.DAL;
-using RDManager.Model;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Security;
+using PEM2PPK;
+using RDManager.DAL;
+using RDManager.Model;
 
 namespace RDManager
 {
@@ -222,6 +225,11 @@ namespace RDManager
             return EncryptPassword(MD5Encrypt16(server.ServerAddress, Encoding.ASCII) + server.Password);
         }
 
+        public static string EncryptServerKeyPassPhrase(RDSServer server)
+        {
+            return EncryptPassword(MD5Encrypt16(server.ServerAddress, Encoding.ASCII) + server.KeyPassPhrase);
+        }
+
         public static string EncryptServerPassword(string serverAddress, string password)
         {
             return EncryptPassword(MD5Encrypt16(serverAddress, Encoding.ASCII) + password);
@@ -230,6 +238,11 @@ namespace RDManager
         public static string DecryptServerPassword(RDSServer server)
         {
             return DecryptPassword(server.Password).Replace(MD5Encrypt16(server.ServerAddress, Encoding.ASCII), "");
+        }
+
+        public static string DecryptServerKeyPassPhrase(RDSServer server)
+        {
+            return DecryptPassword(server.KeyPassPhrase).Replace(MD5Encrypt16(server.ServerAddress, Encoding.ASCII), "");
         }
 
         public static string DecryptPassword(string encryPassword)

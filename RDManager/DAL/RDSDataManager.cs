@@ -210,10 +210,10 @@ namespace RDManager.DAL
         }
 
         /// <summary>
-        /// 添加服务器
+        /// 保存服务器
         /// </summary>
         /// <param name="model"></param>
-        public void AddServer(RDSServer model)
+        public void SaveServer(RDSServer model)
         {
             XDocument doc = GetData();
             var root = doc.Element("rds");
@@ -225,6 +225,8 @@ namespace RDManager.DAL
             element.SetAttributeValue("port", model.ServerPort);
             element.SetAttributeValue("username", model.UserName);
             element.SetAttributeValue("password", model.Password);
+            element.SetAttributeValue("privatekey", model.PrivateKey);
+            element.SetAttributeValue("keypassphrase", model.KeyPassPhrase);
             element.SetAttributeValue("optype", model.OpType);
             element.SetAttributeValue("linktype", model.LinkType);
 
@@ -254,6 +256,8 @@ namespace RDManager.DAL
                 docElelment.SetAttributeValue("port", model.ServerPort);
                 docElelment.SetAttributeValue("username", model.UserName);
                 docElelment.SetAttributeValue("password", model.Password);
+                docElelment.SetAttributeValue("privatekey", model.PrivateKey);
+                docElelment.SetAttributeValue("keypassphrase", model.KeyPassPhrase);
                 docElelment.SetAttributeValue("optype", model.OpType);
                 docElelment.SetAttributeValue("linktype", model.LinkType);
             }

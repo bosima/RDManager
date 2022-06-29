@@ -539,6 +539,8 @@ namespace RDManager
             string port = element.Attribute("port").Value;
             string username = element.Attribute("username").Value;
             string password = element.Attribute("password").Value;
+            string privateKey = element.Attribute("privatekey")?.Value;
+            string keyPassPhrase = element.Attribute("keypassphrase")?.Value;
             string optype = element.Attributes().Any(d => d.Name == "optype") ? element.Attribute("optype").Value : string.Empty;
             string linktype = element.Attributes().Any(d => d.Name == "linktype") ? element.Attribute("linktype").Value : string.Empty;
 
@@ -558,6 +560,8 @@ namespace RDManager
                 ServerPort = int.Parse(port),
                 UserName = username,
                 Password = password,
+                PrivateKey = privateKey,
+                KeyPassPhrase = keyPassPhrase,
                 OpType = optype,
                 LinkType = linktype
             };
@@ -680,7 +684,7 @@ namespace RDManager
                 var server = (RDSServer)newMoveNode.RDSData;
                 server.GroupID = (Guid)targetDataNode.Tag;
                 RDSDataManager dataManager = new RDSDataManager();
-                dataManager.AddServer(server);
+                dataManager.SaveServer(server);
             }
 
 
@@ -1160,7 +1164,8 @@ namespace RDManager
                 {
                     var server = (RDSServer)node.RDSData;
                     server.Password = EncryptUtils.DecryptServerPassword(server);
-                    dataManager.AddServer(server);
+                    server.KeyPassPhrase = EncryptUtils.DecryptServerKeyPassPhrase(server);
+                    dataManager.SaveServer(server);
                 }
                 else
                 {

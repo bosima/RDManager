@@ -51,7 +51,7 @@
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -73,7 +73,7 @@
             this.serverTree.AllowDrop = true;
             this.serverTree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.serverTree.Location = new System.Drawing.Point(0, 24);
-            this.serverTree.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.serverTree.Margin = new System.Windows.Forms.Padding(2);
             this.serverTree.Name = "serverTree";
             this.serverTree.Size = new System.Drawing.Size(173, 506);
             this.serverTree.TabIndex = 0;
@@ -124,7 +124,7 @@
             // decryptToolStripMenuItem
             // 
             this.decryptToolStripMenuItem.Name = "decryptToolStripMenuItem";
-            this.decryptToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.decryptToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.decryptToolStripMenuItem.Text = "Decrypt";
             this.decryptToolStripMenuItem.Click += new System.EventHandler(this.decryptToolStripMenuItem_Click);
             // 
@@ -139,7 +139,7 @@
             // 
             this.defaultRDPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.defaultRDPanel.Location = new System.Drawing.Point(0, 0);
-            this.defaultRDPanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.defaultRDPanel.Margin = new System.Windows.Forms.Padding(2);
             this.defaultRDPanel.Name = "defaultRDPanel";
             this.defaultRDPanel.Size = new System.Drawing.Size(787, 530);
             this.defaultRDPanel.TabIndex = 0;
@@ -160,7 +160,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "MainForm";
             this.Text = "萤火远程终端管理工具";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);

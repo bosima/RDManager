@@ -35,7 +35,7 @@ namespace RDManager
             InitializeComponent();
         }
 
-        // 嵌入Winform的代码大量使用了：https://www.cnblogs.com/hackpig/p/5783604.html，感谢作者！
+        // Reference:https://www.cnblogs.com/hackpig/p/5783604.html
 
         #region Windows API
         [DllImport("user32.dll")]
@@ -82,13 +82,22 @@ namespace RDManager
         }
         #endregion
 
-        public void Connect(string ip, int port, string userName, string password)
+        public void Connect(string ip, int port, string userName, string password, string privateKey,string keyPassPhrase)
         {
             // putty command line: https://the.earth.li/~sgtatham/putty/0.76/htmldoc/Chapter3.html#using-cmdline
             puttyProcess = new Process();
             puttyProcess.StartInfo.WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tools");
             puttyProcess.StartInfo.FileName = @"putty.exe";
-            puttyProcess.StartInfo.Arguments = $"-ssh -P {port} -pw {password} {userName}@{ip}";
+            if (!string.IsNullOrWhiteSpace(privateKey))
+            {
+                var ppkFileName = PrivateKeyFileUtils.GetPpkFileName(privateKey, keyPassPhrase);
+                puttyProcess.StartInfo.Arguments = $"-ssh -P {port} -i ../keys/{ppkFileName} {userName}@{ip}";
+            }
+            else
+            {
+                puttyProcess.StartInfo.Arguments = $"-ssh -P {port} -pw {password} {userName}@{ip}";
+            }
+           ;
             puttyProcess.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
             puttyProcess.EnableRaisingEvents = true;
             puttyProcess.Exited += PuttyProcess_Exited;
@@ -116,6 +125,12 @@ namespace RDManager
             }
 
             ResizeControl();
+            Thread.Sleep(100);
+            foreach (char c in keyPassPhrase)
+            {
+                SendMessage(puttyProcess.MainWindowHandle, 0x0102, c, 0);
+            }
+            SendMessage(puttyProcess.MainWindowHandle, 0x0102, (int)Keys.Enter, 0);
         }
 
         public bool IsConnected

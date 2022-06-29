@@ -45,14 +45,16 @@
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
+    <Reference Include="BouncyCastle.Crypto, Version=1.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BouncyCastle.NetCore.1.9.0\lib\net20\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
     <Reference Include="MSTSCLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>..\packages\MSTSCLib.dll</HintPath>
     </Reference>
-    <Reference Include="Renci.SshNet, Version=2016.1.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Renci.SshNet.dll</HintPath>
+    <Reference Include="Renci.SshNet, Version=2020.0.2.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
+      <HintPath>..\packages\SSH.NET.2020.0.2\lib\net40\Renci.SshNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -73,6 +75,9 @@
     <Compile Include="DirectoryNameEditForm.Designer.cs">
       <DependentUpon>DirectoryNameEditForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="DoubleBufferListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Ext\EncryptUtils.cs" />
     <Compile Include="Ext\FileIconUtil.cs" />
     <Compile Include="Ext\FileOperationUtil.cs" />
@@ -80,6 +85,9 @@
     <Compile Include="Ext\MaskLayerControl.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Ext\PasswordFinder.cs" />
+    <Compile Include="Ext\PrivateKeyFileUtils.cs" />
+    <Compile Include="Ext\PuttyKeyFileGenerator.cs" />
     <Compile Include="Ext\SystemIconUtil.cs" />
     <Compile Include="GroupEditForm.cs">
       <SubType>Form</SubType>
@@ -163,6 +171,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SSHControl.resx" />
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -44,7 +44,7 @@
             this.txtCurrentRemotePath = new System.Windows.Forms.TextBox();
             this.lblRemoteDirectory = new System.Windows.Forms.Label();
             this.remoteListView = new System.Windows.Forms.ListView();
-            this.processListView = new System.Windows.Forms.ListView();
+            this.processListView = new DoubleBufferListView();
             this.sshTab.SuspendLayout();
             this.sFtpTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fsSplitContainer)).BeginInit();
@@ -332,7 +332,7 @@
         private System.Windows.Forms.SplitContainer fsSplitContainer;
         private System.Windows.Forms.SplitContainer lrSplitContainer;
         private System.Windows.Forms.ListView remoteListView;
-        private System.Windows.Forms.ListView processListView;
+        private DoubleBufferListView processListView;
         private System.Windows.Forms.SplitContainer leftSplitContainer;
         private System.Windows.Forms.ListView localListView;
         private System.Windows.Forms.Panel pnlLocalPath;

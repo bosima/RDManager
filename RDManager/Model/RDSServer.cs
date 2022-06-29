@@ -14,6 +14,8 @@ namespace RDManager.Model
         public int ServerPort { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
+        public string PrivateKey { get; set; }
+        public string KeyPassPhrase { get; set; }
         public string OpType { get; set; }
         public string LinkType { get; set; }
 
@@ -27,6 +29,8 @@ namespace RDManager.Model
             newServer.ServerPort = ServerPort;
             newServer.UserName = UserName;
             newServer.Password = Password;
+            newServer.PrivateKey = PrivateKey;
+            newServer.KeyPassPhrase = KeyPassPhrase;
             newServer.OpType = OpType;
             newServer.LinkType = LinkType;
 

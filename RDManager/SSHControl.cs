@@ -135,7 +135,17 @@ namespace RDManager
         private void ConnectShell()
         {
             string userName = _rdsServer.UserName;
-            string password = EncryptUtils.DecryptServerPassword(_rdsServer);
+            string password = string.Empty;
+            if (!string.IsNullOrWhiteSpace(_rdsServer.Password))
+            {
+                password = EncryptUtils.DecryptServerPassword(_rdsServer);
+            }
+            string privateKey = _rdsServer.PrivateKey;
+            string keyPassPhrase = string.Empty;
+            if (!string.IsNullOrWhiteSpace(_rdsServer.KeyPassPhrase))
+            {
+                keyPassPhrase = EncryptUtils.DecryptServerKeyPassPhrase(_rdsServer);
+            }
             string host = _rdsServer.ServerAddress;
             int port = _rdsServer.ServerPort;
 
@@ -144,7 +154,7 @@ namespace RDManager
                 _putty.Tag = _rdsServer.ServerID.ToString();
                 if (!_putty.IsConnected)
                 {
-                    _putty.Connect(host, port, userName, password);
+                    _putty.Connect(host, port, userName, password, privateKey, keyPassPhrase);
                     _putty.Focus();
                 }
             }
@@ -153,14 +163,11 @@ namespace RDManager
                 _putty = new PuttyControl();
                 _putty.Tag = _rdsServer.ServerID.ToString();
                 _putty.Dock = System.Windows.Forms.DockStyle.Fill;
-                //_putty.BackColor = System.Drawing.Color.Teal;
-                //_putty.ForeColor = System.Drawing.Color.Snow;
-                //_putty.Font = new Font("Courier New", 10);
                 _putty.OnConnected += Shell_OnConnected;
                 _putty.OnDisconnected += Shell_OnDisconnected;
                 shellTab.Controls.Add(_putty);
 
-                _putty.Connect(host, port, userName, password);
+                _putty.Connect(host, port, userName, password, privateKey, keyPassPhrase);
                 _putty.Focus();
             }
         }
@@ -298,8 +305,9 @@ namespace RDManager
             this.processListView.Columns.Add("源文件", 300, HorizontalAlignment.Left);
             this.processListView.Columns.Add("方向", 80, HorizontalAlignment.Center);
             this.processListView.Columns.Add("目标文件", 300, HorizontalAlignment.Left);
-            this.processListView.Columns.Add("大小", 100, HorizontalAlignment.Left);
+            this.processListView.Columns.Add("大小", 120, HorizontalAlignment.Left);
             this.processListView.Columns.Add("状态", 100, HorizontalAlignment.Left);
+            this.processListView.Columns.Add("描述", 200, HorizontalAlignment.Left);
 
             this.localListView.SmallImageList = _fileIconList;
             this.remoteListView.SmallImageList = _fileIconList;
@@ -349,7 +357,18 @@ namespace RDManager
         {
             Task.Factory.StartNew(() =>
             {
-                ConnectSFTP();
+                try
+                {
+                    ConnectSFTP();
+                }
+                catch (Exception ex)
+                {
+                    this.Invoke(new Action(() =>
+                    {
+                        MessageBox.Show("建立SFTP连接错误：" + ex);
+                    }));
+                }
+
                 SFTP_OnConnected(this, new EventArgs());
             });
         }
@@ -362,9 +381,30 @@ namespace RDManager
             // connecting
             _sFTPConnectStatus = 0;
 
+            AuthenticationMethod authMethod;
+
+            if (!string.IsNullOrWhiteSpace(_rdsServer.PrivateKey))
+            {
+                var pemPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "keys", _rdsServer.PrivateKey);
+                string keyPassPhrase = null;
+                if (!string.IsNullOrWhiteSpace(_rdsServer.KeyPassPhrase))
+                {
+                    keyPassPhrase = EncryptUtils.DecryptServerKeyPassPhrase(_rdsServer);
+                    authMethod = new PrivateKeyAuthenticationMethod(_rdsServer.UserName, new PrivateKeyFile(pemPath, keyPassPhrase));
+                }
+                else
+                {
+                    authMethod = new PrivateKeyAuthenticationMethod(_rdsServer.UserName, new PrivateKeyFile(pemPath));
+                }
+            }
+            else
+            {
+                authMethod = new PasswordAuthenticationMethod(_rdsServer.UserName, EncryptUtils.DecryptServerPassword(_rdsServer));
+            }
+
             var connectionInfo = new ConnectionInfo(_rdsServer.ServerAddress,
                                    _rdsServer.UserName,
-                                   new PasswordAuthenticationMethod(_rdsServer.UserName, EncryptUtils.DecryptServerPassword(_rdsServer))
+                                   authMethod
                                    );
 
             _sftpClient = new SftpClient(connectionInfo);
@@ -2370,37 +2410,28 @@ namespace RDManager
 
                         // 上传进度
                         task.ProcessSize = size;
-
-                        // 上传完毕
-                        if (size == task.TotalSize)
-                        {
-                            task.ProcessStatus = 1;
-                            task.EndTime = DateTime.Now;
-                        }
-
                         UpdateProcessStatus(task);
-
-                        if (task.ProcessStatus == 1)
-                        {
-                            DoUploadFileCompleted(task);
-                        }
                     });
                 }
 
-                if (task.TotalSize == 0)
-                {
-                    task.ProcessStatus = 1;
-                    task.EndTime = DateTime.Now;
-                    DoUploadFileCompleted(task);
-
-                    UpdateProcessStatus(task);
-                }
+                // 上传完毕
+                task.ProcessStatus = 1;
+                task.EndTime = DateTime.Now;
+                DoUploadFileCompleted(task);
+                UpdateProcessStatus(task);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                task.ErrorMessage = ex.Message;
+                task.ProcessStatus = -1;
+                UpdateProcessStatus(task);
             }
             catch (Exception ex)
             {
                 if (i < 3 && task.ProcessStatus != -2)
                 {
-                    Thread.Sleep((i + 1) * 1000);
+                    i++;
+                    Thread.Sleep(i * 1000);
                     goto DoUpload;
                 }
                 else
@@ -2593,38 +2624,29 @@ namespace RDManager
 
                         // 下载进度
                         task.ProcessSize = size;
-
-                        // 下载完毕
-                        if (size == task.TotalSize)
-                        {
-                            task.ProcessStatus = 1;
-                            task.EndTime = DateTime.Now;
-                        }
-
                         UpdateProcessStatus(task);
-
-                        if (task.ProcessStatus == 1)
-                        {
-                            DoDownloadFileCompleted(task);
-                        }
                     });
                 }
 
-                if (task.TotalSize == 0)
-                {
-                    task.ProcessStatus = 1;
-                    task.EndTime = DateTime.Now;
-                    DoDownloadFileCompleted(task);
+                // var file = _sftpClient.Get(task.SourceFilePath);
+                task.ProcessStatus = 1;
+                task.EndTime = DateTime.Now;
 
-                    UpdateProcessStatus(task);
-                }
-
+                DoDownloadFileCompleted(task);
+                UpdateProcessStatus(task);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                task.ErrorMessage = ex.Message;
+                task.ProcessStatus = -1;
+                UpdateProcessStatus(task);
             }
             catch (Exception ex)
             {
                 if (i < 3 && task.ProcessStatus != -2)
                 {
-                    Thread.Sleep((i + 1) * 1000);
+                    i++;
+                    Thread.Sleep(i * 1000);
                     goto DoDownload;
                 }
                 else
@@ -2699,7 +2721,7 @@ namespace RDManager
             }
             else if (task.ProcessStatus == -1)
             {
-                processStatus = task.ErrorMessage;
+                processStatus = "失败";
             }
 
             if (task.ViewItem == null)
@@ -2711,6 +2733,7 @@ namespace RDManager
                 lvi.SubItems.Add(task.DestFilePath);
                 lvi.SubItems.Add(task.ProcessSize + "/" + task.TotalSize);
                 lvi.SubItems.Add(processStatus);
+                lvi.SubItems.Add(task.ErrorMessage);
 
                 task.ViewItem = lvi;
                 this.processListView.Items.Insert(0, lvi);
@@ -2719,6 +2742,7 @@ namespace RDManager
             {
                 task.ViewItem.SubItems[3].Text = task.ProcessSize + "/" + task.TotalSize;
                 task.ViewItem.SubItems[4].Text = processStatus;
+                task.ViewItem.SubItems[5].Text = task.ErrorMessage;
             }
 
             this.processListView.EndUpdate();
