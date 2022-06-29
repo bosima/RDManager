@@ -24,7 +24,7 @@ namespace PEM2PPK
         {
             //RSACryptoServiceProvider からRSAParametersに変更
             //RSAParameters keyParameters = cryptoServiceProvider.ExportParameters(includePrivateParameters: true);
-           
+
             // create public buffer
             byte[] publicBuffer = new byte[3 + keyType.Length + GetPrefixSize(keyParameters.Exponent) + keyParameters.Exponent.Length +
                 GetPrefixSize(keyParameters.Modulus) + keyParameters.Modulus.Length + 1];
@@ -68,8 +68,11 @@ namespace PEM2PPK
                 if (privateEncryptedBufferLength > privateBuffer.Length)
                 {
                     Debug.Assert(privateEncryptedBufferLength - privateBuffer.Length < 20);
-                    byte[] privateHash = new SHA1CryptoServiceProvider().ComputeHash(privateBuffer);
-                    writer.Write(privateHash, 0, privateEncryptedBufferLength - privateBuffer.Length);
+                    using (var sha1 = new SHA1CryptoServiceProvider())
+                    {
+                        byte[] privateHash = sha1.ComputeHash(privateBuffer);
+                        writer.Write(privateHash, 0, privateEncryptedBufferLength - privateBuffer.Length);
+                    }
                 }
             }
 
@@ -90,9 +93,18 @@ namespace PEM2PPK
             {
                 macKeyStr += passPharse;
             }
-            byte[] macKey = new SHA1CryptoServiceProvider().ComputeHash(Encoding.ASCII.GetBytes(macKeyStr));
-            var hmacsha1 = new HMACSHA1(macKey);
-            string mac = string.Join("", hmacsha1.ComputeHash(bytesToHash).Select(x => string.Format("{0:x2}", x)));
+
+            byte[] macKey;
+            using (var sha1 = new SHA1CryptoServiceProvider())
+            {
+                macKey = sha1.ComputeHash(Encoding.ASCII.GetBytes(macKeyStr));
+            }
+
+            string mac;
+            using (var hmacsha1 = new HMACSHA1(macKey))
+            {
+                mac = string.Join("", hmacsha1.ComputeHash(bytesToHash).Select(x => string.Format("{0:x2}", x)));
+            }
 
             // encrypt private blob
             if (!string.IsNullOrWhiteSpace(passPharse))
@@ -102,12 +114,20 @@ namespace PEM2PPK
 
                 byte[] passBuffer1 = new byte[passBufferLength];
                 Buffer.BlockCopy(passBytes, 0, passBuffer1, 4, passBytes.Length);
-                byte[] passKey1 = new SHA1CryptoServiceProvider().ComputeHash(passBuffer1);
+                byte[] passKey1;
+                using (var sha1 = new SHA1CryptoServiceProvider())
+                {
+                    passKey1 = new SHA1CryptoServiceProvider().ComputeHash(passBuffer1);
+                }
 
                 byte[] passBuffer2 = new byte[passBufferLength];
                 passBuffer2[3] = 1;
                 Buffer.BlockCopy(passBytes, 0, passBuffer2, 4, passBytes.Length);
-                byte[] passKey2 = new SHA1CryptoServiceProvider().ComputeHash(passBuffer2);
+                byte[] passKey2;
+                using (var sha1 = new SHA1CryptoServiceProvider())
+                {
+                    passKey2 = new SHA1CryptoServiceProvider().ComputeHash(passBuffer2);
+                }
 
                 byte[] passKey = new byte[40];
                 Buffer.BlockCopy(passKey1, 0, passKey, 0, 20);
@@ -181,18 +201,18 @@ namespace PEM2PPK
 
         private static byte[] AES256Encrypt(byte[] key, byte[] iv, byte[] bytes)
         {
-            RijndaelManaged rijalg = new RijndaelManaged();
+            using (RijndaelManaged rijalg = new RijndaelManaged())
+            {
+                rijalg.BlockSize = 128;
+                rijalg.KeySize = 256;
+                rijalg.Padding = PaddingMode.None;
+                rijalg.Mode = CipherMode.CBC;
+                rijalg.Key = key;
+                rijalg.IV = iv;
 
-            rijalg.BlockSize = 128;
-            rijalg.KeySize = 256;
-            rijalg.Padding = PaddingMode.None;
-            rijalg.Mode = CipherMode.CBC;
-            rijalg.Key = key;
-            rijalg.IV = iv;
-
-            ICryptoTransform encryptor = rijalg.CreateEncryptor(rijalg.Key, rijalg.IV);
-            return encryptor.TransformFinalBlock(bytes, 0, bytes.Length);
+                ICryptoTransform encryptor = rijalg.CreateEncryptor(rijalg.Key, rijalg.IV);
+                return encryptor.TransformFinalBlock(bytes, 0, bytes.Length);
+            }
         }
-
     }
 }
