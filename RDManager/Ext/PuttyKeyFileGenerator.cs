@@ -105,7 +105,7 @@ namespace PEM2PPK
             {
                 mac = string.Join("", hmacsha1.ComputeHash(bytesToHash).Select(x => string.Format("{0:x2}", x)));
             }
-
+            
             // encrypt private blob
             if (!string.IsNullOrWhiteSpace(passPharse))
             {
@@ -172,7 +172,15 @@ namespace PEM2PPK
             if (addLeadingNull)
                 length++;
 
-            writer.Write(BitConverter.GetBytes(length).Reverse().ToArray());
+            if (BitConverter.IsLittleEndian)
+            {
+                writer.Write(BitConverter.GetBytes(length).Reverse().ToArray());
+            }
+            else
+            {
+                writer.Write(BitConverter.GetBytes(length));
+            }
+           
             if (addLeadingNull)
                 writer.Write((byte)0x00);
             writer.Write(bytes);
